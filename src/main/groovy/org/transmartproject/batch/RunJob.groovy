@@ -12,8 +12,8 @@ class RunJob {
 
     static void main(String ... args) {
         CommandLineJobRunner.presetSystemExiter(new DummySystemExiter())
-        //transmart(gse8581())
-        transmart(gse20690()) //this example has multiple rows for the same patient (with different visit names)
+        transmart(gse8581())
+        //transmart(gse20690()) //this example has multiple rows for the same patient (with different visit names)
     }
 
     static void transmart(Map study) {
@@ -42,7 +42,8 @@ class RunJob {
                 (Keys.STUDY_ID): 'GSE8581',
                 (Keys.DATA_LOCATION): 'src/test/resources/clinical/GSE8581',
                 (Keys.COLUMN_MAP_FILE): 'E-GEOD-8581_columns.txt',
-                (Keys.WORD_MAP_FILE): 'E-GEOD-8581_wordmap.txt'
+                (Keys.WORD_MAP_FILE): 'E-GEOD-8581_wordmap.txt',
+                (Keys.TRIAL_TAG_FILE): 'E-GEOD-8581_trialtags.txt',
         ]
     }
 

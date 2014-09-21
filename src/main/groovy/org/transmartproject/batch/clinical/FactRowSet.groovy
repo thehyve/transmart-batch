@@ -46,7 +46,7 @@ class FactRowSet {
 
                     provider_id: '@',
                     location_cd: '@',
-                    modifier_cd: '@',
+                    modifier_cd: '@', //@TODO: use somehow it.concept.trialTag
                     valueflag_cd: '@',
                     instance_num: 1,
             ]
@@ -55,8 +55,8 @@ class FactRowSet {
 
     private class Entry {
         Variable variable
-        String value
         ConceptNode concept
+        String value
 
         String getValueTypeCode() {
             switch (variable.type) {

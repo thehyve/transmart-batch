@@ -69,4 +69,18 @@ class MappingHelper {
         line.split('\t').toList()
     }
 
+    static File getOptionalFile(String dataLocation, String filename) {
+        if (!filename) {
+            return null
+        }
+        if ('x'.equalsIgnoreCase(filename)) {
+            //alias for 'not defined'
+            return null
+        }
+        if (!dataLocation) {
+            throw new IllegalArgumentException('Data location not defined')
+        }
+        new File(dataLocation, filename)
+    }
+
 }

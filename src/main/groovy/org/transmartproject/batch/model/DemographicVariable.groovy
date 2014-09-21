@@ -31,6 +31,7 @@ enum DemographicVariable {
             column: 'race_cd',
             defaultValue: null,
             matchers: [
+                    'ETHNICITY',
                     'RACE',
                     '.*\\(RACE\\)',
             ]
