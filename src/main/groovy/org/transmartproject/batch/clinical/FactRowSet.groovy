@@ -46,7 +46,7 @@ class FactRowSet {
 
                     provider_id: '@',
                     location_cd: '@',
-                    modifier_cd: '@', //@TODO: use somehow it.concept.trialTag
+                    modifier_cd:  it.concept.trialTag ?: '@',
                     valueflag_cd: '@',
                     instance_num: 1,
             ]
