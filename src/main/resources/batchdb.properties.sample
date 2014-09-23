@@ -1,0 +1,6 @@
+#copy this to ~/.transmart/batchdb.properties and customize
+transmart.jdbc.driver=org.postgresql.Driver
+transmart.jdbc.url=jdbc:postgresql://localhost:5432/transmart
+transmart.jdbc.user=batch
+transmart.jdbc.password=batch
+

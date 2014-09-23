@@ -12,7 +12,6 @@ import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Scope
 import org.springframework.jdbc.core.JdbcTemplate
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
@@ -57,6 +56,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 'readControlFilesFlow',
                 stepOf(this.&readVariablesTasklet),
                 stepOf(this.&readWordMapTasklet),
+                stepOf(this.&readTrialTagsTasklet),
         )
     }
 
@@ -83,6 +83,12 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Tasklet readVariablesTasklet() {
         new ReadVariablesTasklet()
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    Tasklet readTrialTagsTasklet() {
+        new ReadTrialTagsTasklet()
     }
 
     @Bean

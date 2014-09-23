@@ -1,0 +1,4 @@
+value	category	path
+demographic	Subjects	Age (year)
+cancer	Endpoints	Diagnosis\lymphoma
+cancer	Endpoints	Diagnosis\Giant Cell Tumor

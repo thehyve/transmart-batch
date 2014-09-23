@@ -68,6 +68,7 @@ class ConceptNode {
     Long i2b2RecordId
     int level
     Variable variable
+    String trialTag
 
     boolean isNew = true //new by default, until explicitly set otherwise
 
