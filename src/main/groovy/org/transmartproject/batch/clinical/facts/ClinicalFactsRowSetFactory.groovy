@@ -52,15 +52,21 @@ class ClinicalFactsRowSetFactory {
         fileVariables.otherVariables.each { ClinicalVariable var ->
             String value = row[var.columnNumber]
 
-            if (!value) {
+            //return on empty string or fully whitespace string
+            if (!value || value.trim().length() == 0) {
                 return
             }
+
+            //maximum string lenght that we can store is 255.
+            //should maybe also trow a warning
+            if(value.length() >= 255) { value = value.substring(0,254)  }
 
             processVariableValue result, var, value
         }
 
         result
     }
+
 
     private void processVariableValue(ClinicalFactsRowSet result,
                                       ClinicalVariable var,
@@ -69,25 +75,48 @@ class ClinicalFactsRowSetFactory {
          * Concepts are created and assigned types and ids
          */
 
-        boolean curValIsNumerical = value.isDouble()
-
         /* we infer the conceptType once we see the first value.
-         * Kind of dangerous */
+        * Kind of dangerous */
         ConceptType conceptType
         ConceptNode concept = tree[var.conceptPath]
-        if (!concept || concept.type == ConceptType.UNKNOWN) {
-            conceptType = curValIsNumerical ? ConceptType.NUMERICAL : ConceptType.CATEGORICAL
+
+        //System.out.println(var.dataLabel + "\t" + value)
+
+        // if the concept doesn't yet exist (ie first record)
+        if(!concept){
+
+            //if no conceptType is set in the columnsfile try to detect the conceptType from the first record
+            if(var.conceptType == null)
+            {
+                conceptType = value.isDouble() ? ConceptType.NUMERICAL : ConceptType.CATEGORICAL
+            }
+            //if conceptType is set get it from the columnsFile
+            else
+            {
+                conceptType = getConceptTypeFromColumnsFile(var)
+            }
+
             // has the side-effect of assigning type if it's unknown and
             // creating the concept from scratch if it doesn't exist at all
             concept = tree.getOrGenerate(var.conceptPath, conceptType)
-        } else {
+        }
+        //if the concept does already exist ( ie not first record)
+        else
+        {
             conceptType = concept.type
+
+            //if the conceptType is detected here (not specified in columns file )check if the current conceptType is the same as the one detected on the first record
+            if(var.conceptType == null)
+            {
+                boolean curValIsNumerical = value.isDouble()
+
+                if (conceptType == ConceptType.NUMERICAL && !curValIsNumerical) {
+                    throw new IllegalArgumentException("Variable $var inferred " +
+                            "numerical, but got value '$value'" + String.valueOf(value.length()) +"patient " +  String.valueOf(result.patient.id) + var.dataLabel)
+                }
+            }
         }
 
-        if (conceptType == ConceptType.NUMERICAL && !curValIsNumerical) {
-            throw new IllegalArgumentException("Variable $var inferred " +
-                    "numerical, but got value '$value'")
-        }
 
         // we need a subnode if the variable is categorical
         if (conceptType == ConceptType.CATEGORICAL) {
@@ -98,6 +127,22 @@ class ClinicalFactsRowSetFactory {
 
         result.addValue concept, getXtrialNodeFor(concept), value
     }
+
+    private ConceptType getConceptTypeFromColumnsFile(ClinicalVariable var) {
+
+        ConceptType conceptType
+        switch (var.conceptType) {
+            case "CATEGORICAL"  : conceptType = ConceptType.CATEGORICAL;
+                break;
+            case "NUMERICAL"    : conceptType = ConceptType.NUMERICAL;
+                break;
+            default             : conceptType = ConceptType.UNKNOWN;
+                break;
+        }
+        return conceptType
+    }
+
+
 
     XtrialNode getXtrialNodeFor(ConceptNode conceptNode) {
         if (conceptXtrialMap.containsKey(conceptNode)) {
