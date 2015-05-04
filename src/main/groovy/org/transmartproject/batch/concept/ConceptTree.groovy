@@ -54,8 +54,19 @@ class ConceptTree {
         }
     }
 
+    //TODO We should have just one way to check is record new @{see getConceptNodesToInsert}
     boolean isNew(ConceptNode node) {
         !(node.path in oldConceptPaths)
+    }
+
+    Collection<ConceptNode> getNewConceptNodes() {
+        allConceptNodes.findAll {
+            !(it.path in oldConceptPaths)
+        }
+    }
+
+    Collection<ConceptNode> getConceptNodesToInsert() {
+        nodeMap.values().findAll { !it.code }
     }
 
     Collection<ConceptNode> getAllConceptNodes() {
@@ -115,7 +126,7 @@ class ConceptTree {
     }
 
     void reserveIdsFor(ConceptNode node) {
-        if (node.insertable) {
+        if (node.code) {
             return
         }
 
@@ -123,17 +134,14 @@ class ConceptTree {
         node.i2b2RecordId = reserver.getNext(Sequences.I2B2_RECORDID)
     }
 
-    void reserveIds() {
-        allConceptNodes.each { reserveIdsFor it }
+    void reserveIdsFor(Collection<ConceptNode> nodes) {
+        for (ConceptNode node: nodes) {
+            reserveIdsFor(node)
+        }
     }
 
     boolean isStudyNode(ConceptNode node) {
         topNodePath.isPrefixOf(node.path)
     }
 
-    Collection<ConceptNode> getNewConceptNodes() {
-        allConceptNodes.findAll {
-            !(it.path in oldConceptPaths)
-        }
-    }
 }

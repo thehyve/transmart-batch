@@ -20,10 +20,6 @@ class ConceptNode {
 
     ConceptType type = ConceptType.UNKNOWN
 
-    boolean isInsertable() {
-        code != null
-    }
-
     ConceptNode() {
         // empty constructor to allow specifying properties
     }

@@ -40,6 +40,6 @@ class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
     @Override
     void setValues(PreparedStatement ps) throws SQLException {
         ps.setString(1, studyId)
-        ps.setString(2, StringUtils.escapeForLike(basePath.toString()))
+        ps.setString(2, StringUtils.escapeForLike(basePath.toString()) + '%')
     }
 }

@@ -24,26 +24,35 @@ class PatientSet {
         if (result) {
             result
         } else {
-            result = new Patient(
-                    id: id,
-                    code: sequenceReserver.getNext(Sequences.PATIENT))
+            result = new Patient(id: id)
             patientMap[id] = result
         }
     }
 
     void leftShift(Patient patient) {
-        assert patient.isNew == false
-        assert patient.code != null
         assert patient.id != null
 
         patientMap[patient.id] = patient
     }
 
-    Collection<Patient> getNewPatients() {
-        patientMap.values().findAll { it.isNew }
+    Collection<Patient> getPatientsToInsert() {
+        patientMap.values().findAll { !it.code }
     }
 
     Collection<Patient> getAllPatients() {
         patientMap.values()
+    }
+
+    void reserveIdsFor(Patient patient) {
+        if (patient.code) {
+            return
+        }
+        patient.code = sequenceReserver.getNext(Sequences.PATIENT)
+    }
+
+    void reserveIdsFor(Collection<Patient> patients) {
+        for(Patient patient: patients) {
+            reserveIdsFor(patient)
+        }
     }
 }

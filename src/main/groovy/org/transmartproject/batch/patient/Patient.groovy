@@ -15,9 +15,6 @@ final class Patient {
     String id
     Long code
 
-    // TODO: doesn't belong here (arguably)
-    boolean isNew = true //new by default
-
     private final Map<DemographicVariable, Object> demographicValues = [:]
 
     void putDemographicValues(Map<DemographicVariable, String> values) {

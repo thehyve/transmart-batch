@@ -22,6 +22,7 @@ import org.transmartproject.batch.support.SecureObjectToken
 @Component
 @JobScopeInterfaced
 @Slf4j
+//TODO Reuse @{see ConceptsTablesWriter}
 class InsertConceptsTasklet implements Tasklet {
 
     @Autowired
@@ -51,7 +52,7 @@ class InsertConceptsTasklet implements Tasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        conceptTree.reserveIds()
+        conceptTree.reserveIdsFor(conceptTree.newConceptNodes)
 
         //gets all new concepts. notice root is not included (not inserted in concept_dimension)
         List<ConceptNode> newConcepts = conceptTree.newConceptNodes
