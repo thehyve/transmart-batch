@@ -7,10 +7,12 @@ before_install:
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
     - echo deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main  | sudo tee /etc/apt/sources.list.d/ondrej_php5.list
     - sudo apt-get update
+    - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
+    - source ~/ts-travis/init.sh
 
 install:
     - sudo apt-get install -y -qq php5-cli php5-json subversion
-    - svn checkout -q https://github.com/transmart/transmart-data/trunk ~/transmart-data
+    - maybe_checkout_project_branch transmart/transmart-data ~/transmart-data
     - cd ~/transmart-data
     - make -C env ../vars
     - sudo make -C env /var/lib/postgresql/tablespaces
