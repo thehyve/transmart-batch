@@ -12,6 +12,7 @@ class TableLists {
     public static final List<String> CLINICAL_TABLES = [
             Tables.OBSERVATION_FACT,
             Tables.CONCEPT_DIMENSION,
+            Tables.CONCEPT_COUNTS,
             Tables.PATIENT_TRIAL,
             Tables.PATIENT_DIMENSION,
             Tables.I2B2,
@@ -21,6 +22,16 @@ class TableLists {
             "${Tables.BIO_EXPERIMENT} CASCADE",
             'biomart.bio_data_uid',
     ]
+
+    public static final List<String> I2B2_TABLES = [
+            Tables.OBSERVATION_FACT,
+            Tables.CONCEPT_DIMENSION,
+            Tables.PATIENT_DIMENSION,
+            Tables.PATIENT_MAPPING,
+            Tables.VISIT_DIMENSION,
+            Tables.ENCOUNTER_MAPPING,
+            Tables.PROV_DIMENSION,
+     ]
 
     public static final List<String> METABOLOMICS_TABLES = [
             "${Tables.GPL_INFO} CASCADE",
