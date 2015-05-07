@@ -37,9 +37,7 @@ class PatientDimensionTableWriter implements ItemWriter<ClinicalFactsRowSet> {
 
     @Override
     void write(List<? extends ClinicalFactsRowSet> items) throws Exception {
-        //TODO Get new concepts from items and move it to own itemProcessor
-        //items.collect { it.patient }.unique().findAll { it.new }
-        List<Patient> newPatients = patientSet.patientsToInsert
+        List<Patient> newPatients = patientSet.newPatients
 
         log.debug "About to save following patients: ${newPatients}"
         patientSet.reserveIdsFor(newPatients)

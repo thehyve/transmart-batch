@@ -1,7 +1,6 @@
 package org.transmartproject.batch.concept
 
 import com.google.common.collect.Maps
-import com.google.common.collect.Sets
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.JobScope
@@ -32,9 +31,6 @@ class ConceptTree {
     private final NavigableMap<ConceptPath, ConceptNode> nodeMap =
             Maps.newTreeMap()
 
-    private final Set<ConceptPath> oldConceptPaths =
-            Sets.newTreeSet()
-
     @PostConstruct
     void generateStudyNode() {
         // automatically creates nodes up until topNodePath
@@ -50,23 +46,11 @@ class ConceptTree {
             }
 
             nodeMap[n.path] = n
-            oldConceptPaths << n.path
         }
-    }
-
-    //TODO We should have just one way to check is record new @{see getConceptNodesToInsert}
-    boolean isNew(ConceptNode node) {
-        !(node.path in oldConceptPaths)
     }
 
     Collection<ConceptNode> getNewConceptNodes() {
-        allConceptNodes.findAll {
-            !(it.path in oldConceptPaths)
-        }
-    }
-
-    Collection<ConceptNode> getConceptNodesToInsert() {
-        nodeMap.values().findAll { !it.code }
+        nodeMap.values().findAll { it.isNew() }
     }
 
     Collection<ConceptNode> getAllConceptNodes() {
@@ -126,7 +110,8 @@ class ConceptTree {
     }
 
     void reserveIdsFor(ConceptNode node) {
-        if (node.code) {
+        if (!node.isNew()) {
+            log.warn("Could not rewrite id for node that already has one (${node.code}).")
             return
         }
 

@@ -33,4 +33,8 @@ class ConceptNode {
     ConceptNode(String path) {
         this(new ConceptPath(path))
     }
+
+    boolean isNew() {
+        code == null
+    }
 }

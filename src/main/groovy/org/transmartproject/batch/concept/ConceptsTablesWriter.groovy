@@ -46,8 +46,7 @@ class ConceptsTablesWriter implements ItemWriter<ClinicalFactsRowSet> {
 
     @Override
     void write(List<? extends ClinicalFactsRowSet> items) throws Exception {
-        //TODO Get new concepts from items and move it to own itemProcessor
-        List<ConceptNode> newConcepts = conceptTree.conceptNodesToInsert
+        List<ConceptNode> newConcepts = conceptTree.getNewConceptNodes()
 
         log.debug "New concepts are ${newConcepts*.path}"
 
@@ -63,7 +62,7 @@ class ConceptsTablesWriter implements ItemWriter<ClinicalFactsRowSet> {
             return new int[0]
         }
 
-        log.info("Inserting ${newConcepts.size()} new concepts (i2b2/i2b2secure)")
+        log.debug("Inserting ${newConcepts.size()} new concepts (i2b2/i2b2secure)")
 
         String comment = "trial:$studyId"
         List<Map> i2b2Rows = []

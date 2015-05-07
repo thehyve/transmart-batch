@@ -52,10 +52,10 @@ class InsertConceptsTasklet implements Tasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        conceptTree.reserveIdsFor(conceptTree.newConceptNodes)
-
         //gets all new concepts. notice root is not included (not inserted in concept_dimension)
         List<ConceptNode> newConcepts = conceptTree.newConceptNodes
+
+        conceptTree.reserveIdsFor(newConcepts)
 
         log.debug "New concepts are ${newConcepts*.path}"
 

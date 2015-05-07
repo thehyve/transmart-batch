@@ -33,4 +33,8 @@ final class Patient {
         demographicValues[var] ?: var.defaultValue
     }
 
+    boolean isNew() {
+        code == null
+    }
+
 }

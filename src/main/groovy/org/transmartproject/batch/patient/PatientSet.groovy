@@ -1,5 +1,6 @@
 package org.transmartproject.batch.patient
 
+import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -12,6 +13,7 @@ import org.transmartproject.batch.db.SequenceReserver
  */
 @Component
 @JobScope
+@Slf4j
 class PatientSet {
 
     @Autowired
@@ -35,8 +37,8 @@ class PatientSet {
         patientMap[patient.id] = patient
     }
 
-    Collection<Patient> getPatientsToInsert() {
-        patientMap.values().findAll { !it.code }
+    Collection<Patient> getNewPatients() {
+        patientMap.values().findAll { it.isNew() }
     }
 
     Collection<Patient> getAllPatients() {
@@ -44,7 +46,8 @@ class PatientSet {
     }
 
     void reserveIdsFor(Patient patient) {
-        if (patient.code) {
+        if (!patient.isNew()) {
+            log.warn("Could not rewrite id for patient that already has one (${patient.code}).")
             return
         }
         patient.code = sequenceReserver.getNext(Sequences.PATIENT)
