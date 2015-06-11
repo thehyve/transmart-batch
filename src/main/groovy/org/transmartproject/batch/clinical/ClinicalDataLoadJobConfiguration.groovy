@@ -14,6 +14,7 @@ import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.mapping.FieldSetMapper
+import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
+import org.transmartproject.batch.batchartifacts.ColumnMappingValidator
 import org.transmartproject.batch.batchartifacts.DuplicationDetectionProcessor
 import org.transmartproject.batch.batchartifacts.PutInBeanWriter
 import org.transmartproject.batch.beans.AbstractJobConfiguration
@@ -128,7 +130,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .processor(compositeOf(
                     duplicateClinicalVariableDetector(),
                     duplicateDemographicVariablesDetector(),
-                    duplicateConceptPathDetector()))
+                    duplicateConceptPathDetector(),
+                    new ValidatingItemProcessor(adaptValidator(columnMappingValidator()))))
                 .writer(saveClinicalVariableList(null))
                 .build()
 
@@ -167,6 +170,12 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Resource columnMapFileResource() {
         new JobParameterFileResource(parameter: ClinicalJobSpecification.COLUMN_MAP_FILE)
+    }
+
+    @Bean
+    @JobScope
+    ColumnMappingValidator columnMappingValidator() {
+        new ColumnMappingValidator()
     }
 
     @Bean

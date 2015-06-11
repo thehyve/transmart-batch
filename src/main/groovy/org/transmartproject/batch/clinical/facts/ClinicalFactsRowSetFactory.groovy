@@ -16,6 +16,7 @@ import org.transmartproject.batch.concept.ConceptNode
 import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.concept.ConceptType
 
+
 /**
  * Creates {@link org.transmartproject.batch.facts.ClinicalFactsRowSet} objects.
  *
@@ -37,6 +38,7 @@ class ClinicalFactsRowSetFactory {
     @Autowired
     XtrialMappingCollection xtrialMapping
 
+
     private final Map<ConceptNode, XtrialNode> conceptXtrialMap = Maps.newHashMap()
 
     ClinicalFactsRowSet create(ClinicalDataFileVariables fileVariables,
@@ -57,9 +59,15 @@ class ClinicalFactsRowSetFactory {
                 return
             }
 
+            //always try to trim whitespaces
+            value = value.trim()
+
             //maximum string lenght that we can store is 255.
             //should maybe also trow a warning
-            if(value.length() >= 255) { value = value.substring(0,254)  }
+            if (value.length() >= 255) {
+                value = value[0..254]
+                log.warn("Found value longer than allowed 255 chars:" + value )
+            }
 
             processVariableValue result, var, value
         }
@@ -80,19 +88,15 @@ class ClinicalFactsRowSetFactory {
         ConceptType conceptType
         ConceptNode concept = tree[var.conceptPath]
 
-        //System.out.println(var.dataLabel + "\t" + value)
-
         // if the concept doesn't yet exist (ie first record)
-        if(!concept){
+        if (!concept) {
 
             //if no conceptType is set in the columnsfile try to detect the conceptType from the first record
-            if(var.conceptType == null)
-            {
+            if (var.conceptType == null) {
                 conceptType = value.isDouble() ? ConceptType.NUMERICAL : ConceptType.CATEGORICAL
             }
             //if conceptType is set get it from the columnsFile
-            else
-            {
+            else {
                 conceptType = getConceptTypeFromColumnsFile(var)
             }
 
@@ -101,20 +105,18 @@ class ClinicalFactsRowSetFactory {
             concept = tree.getOrGenerate(var.conceptPath, conceptType)
         }
         //if the concept does already exist ( ie not first record)
-        else
-        {
+        else {
             conceptType = concept.type
 
-            //if the conceptType is detected here (not specified in columns file )check if the current conceptType is the same as the one detected on the first record
-            if(var.conceptType == null)
-            {
-                boolean curValIsNumerical = value.isDouble()
+            boolean curValIsNumerical = value.isDouble()
 
-                if (conceptType == ConceptType.NUMERICAL && !curValIsNumerical) {
-                    throw new IllegalArgumentException("Variable $var inferred " +
-                            "numerical, but got value '$value'" + String.valueOf(value.length()) +"patient " +  String.valueOf(result.patient.id) + var.dataLabel)
-                }
+            //if the concepType was set or detected to be numerical test if the current value is also numerical
+            if (conceptType == ConceptType.NUMERICAL && !curValIsNumerical) {
+                throw new IllegalArgumentException("Variable $var inferred " +
+                        "numerical, but got value '$value'" + String.valueOf(value.length()) + " . Patient id: " +
+                        String.valueOf(result.patient.id) + " . Data label: " + var.dataLabel)
             }
+
         }
 
 
@@ -132,14 +134,21 @@ class ClinicalFactsRowSetFactory {
 
         ConceptType conceptType
         switch (var.conceptType) {
-            case "CATEGORICAL"  : conceptType = ConceptType.CATEGORICAL;
-                break;
-            case "NUMERICAL"    : conceptType = ConceptType.NUMERICAL;
-                break;
-            default             : conceptType = ConceptType.UNKNOWN;
-                break;
+            case "CATEGORICAL"  : conceptType = ConceptType.CATEGORICAL
+                break
+            case "NUMERICAL"    : conceptType = ConceptType.NUMERICAL
+                break
+            default             : conceptType = ConceptType.UNKNOWN
+                break
         }
-        return conceptType
+
+        if (conceptType == ConceptType.UNKNOWN) {
+            throw new IllegalArgumentException("Optional Concept type column should be specified to 'CATEGORICAL', " +
+                    "                           'NUMERICAL' or an empty string (for auto detection) " +
+                    "                           in the column mapping file")
+        }
+
+        conceptType
     }
 
 

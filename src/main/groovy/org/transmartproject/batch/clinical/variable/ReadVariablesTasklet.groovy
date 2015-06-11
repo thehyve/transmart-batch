@@ -50,6 +50,9 @@ class ReadVariablesTasklet implements Tasklet {
                 }
                 it.demographicVariable = var //sets the associated demographic variable
             }
+
+
+
         }
 
         RepeatStatus.FINISHED
