@@ -60,8 +60,7 @@ class GatherCurrentPatientsTasklet implements Tasklet, RowMapper<Patient> {
         String id = rs.getString(2)[studyPrefix.length()..-1]
         new Patient(
                 id: id,
-                code: rs.getLong(1),
-                isNew: false)
+                code: rs.getLong(1))
     }
 
 }
