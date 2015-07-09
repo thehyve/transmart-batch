@@ -12,5 +12,5 @@ enum ConceptType {
     NUMERICAL,
     CATEGORICAL,
     HIGH_DIMENSIONAL,
-    UNKNOWN,
+    UNKNOWN
 }
