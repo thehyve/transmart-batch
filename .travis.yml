@@ -1,10 +1,5 @@
 language: php # to have .travis installing the php version we indicate
 sudo: false
-
-addons:
-    apt:
-        packages:
-            - subversion
 php:
     - 5.6
 cache:
@@ -14,15 +9,21 @@ cache:
 
 before_install:
     - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
+    - source ~/ts-travis/init.sh
     - source ~/ts-travis/postgresql_cluster.sh
 
 install:
+    - wget -O - http://files.thehyve.net/json-perl.tar.gz | tar -C ~ -xzf -
+    - export PERL5LIB=$HOME/perl5/lib/perl5
     - install_pg 9.4.4
     - create_cluster
 
 before_script:
     - start_cluster
-    - svn checkout -q https://github.com/transmart/transmart-data/trunk ~/transmart-data
+    # never try thehyve's repos' master
+    - test $(travis_get_owner) = thehyve -a $(get_branch) = master || maybe_checkout_project_branch $(travis_get_owner)/transmart-data || test $? -ne 1
+    - test -d ~/transmart-data || maybe_checkout_project_branch transmart/transmart-data || test $? -ne 1
+    - test -d ~/transmart-data || git clone --depth 1 https://github.com/transmart/transmart-data.git ~/transmart-data
     - cd ~/transmart-data
     - make -C env ../vars
     # put tablespaces somewhere we can write instead
