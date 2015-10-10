@@ -18,6 +18,7 @@ class StandardHighDimDataParametersModule
     public final static String DATA_TYPE = 'DATA_TYPE'
     public final static String LOG_BASE = 'LOG_BASE'
     public final static String ALLOW_MISSING_ANNOTATIONS = 'ALLOW_MISSING_ANNOTATIONS'
+    public final static String TREAT_ZERO_AS = 'TREAT_ZERO_AS'
 
     Set<String> supportedParameters = ImmutableSet.of(
             DATA_FILE_PREFIX,
@@ -25,6 +26,7 @@ class StandardHighDimDataParametersModule
             DATA_TYPE,
             LOG_BASE,
             ALLOW_MISSING_ANNOTATIONS,
+            TREAT_ZERO_AS,
     )
 
     void validate(ExternalJobParametersInternalInterface ejp)
@@ -33,6 +35,12 @@ class StandardHighDimDataParametersModule
             ejp[LOG_BASE] = 2
         } else if (!ejp[LOG_BASE].isLong() || ejp[LOG_BASE] as Long != 2) {
             throw new InvalidParametersFileException("$LOG_BASE must be 2")
+        }
+        
+        if (ejp[TREAT_ZERO_AS] == null) {
+            ejp[TREAT_ZERO_AS] = 'NULL'
+        } else if (ejp[TREAT_ZERO_AS] != 'NULL' && ejp[TREAT_ZERO_AS] != 'VALUE') {
+            throw new InvalidParametersFileException("$TREAT_ZERO_AS must be set to 'NULL' or 'VALUE' ")
         }
 
         ejp.mandatory DATA_TYPE

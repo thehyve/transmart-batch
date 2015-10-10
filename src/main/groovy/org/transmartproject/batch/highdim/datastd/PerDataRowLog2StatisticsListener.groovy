@@ -17,6 +17,9 @@ import org.transmartproject.batch.batchartifacts.AbstractSplittingItemReader
 class PerDataRowLog2StatisticsListener extends ItemStreamSupport
         implements AbstractSplittingItemReader.EagerLineListener<DataPoint> {
 
+	//parameter for how to treat zero values:
+  	String treatZeroAs
+	
     private final static double LOG_2 = Math.log(2)
 
     private final static String STATS_SUB_KEY = 'stats'
@@ -56,12 +59,14 @@ class PerDataRowLog2StatisticsListener extends ItemStreamSupport
         stats.reset()
         long ignoredCount = 0
         items.each {
-            if (Double.isNaN(it.value) || it.value <= 0d) {
+            if ((it.value == 0 && treatZeroAs == 'NULL') || Double.isNaN(it.value) || it.value < 0d) {
                 ignoredCount++
                 return
             }
 
-            stats.push Math.log(it.value) // unscaled
+            stats.push Math.log(it.value) // NB: unscaled....not LOG_2 as the methods getStandardDeviation() and getMean() above
+                                          // should return. Furthermore, if value is 0, then here we are pushing a NaN to stats, 
+            							  // which will result in all other items in the same data row having a z-score = NaN. 
         }
 
 

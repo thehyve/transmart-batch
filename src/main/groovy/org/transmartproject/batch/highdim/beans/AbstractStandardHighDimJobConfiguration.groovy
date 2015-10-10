@@ -386,8 +386,12 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
 
     @Bean
     @JobScope
-    CheckNumberOfValuesValidatingListener checkNumberOfValuesValidatingListener() {
-        new CheckNumberOfValuesValidatingListener()
+    CheckNumberOfValuesValidatingListener checkNumberOfValuesValidatingListener(
+    		@Value('#{jobParameters}')
+            Map<String, Object> jobParameters) {
+          
+        new CheckNumberOfValuesValidatingListener(
+        		treatZeroAs: jobParameters[StandardHighDimDataParametersModule.TREAT_ZERO_AS])
     }
 
     @Bean
@@ -428,8 +432,14 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
     }
 
     @Bean
-    TripleDataValueWrappingReader secondPassReader() {
-        new TripleDataValueWrappingReader(delegate: secondPassDataRowSplitterReader())
+    @JobScope
+    TripleDataValueWrappingReader secondPassReader(
+    		@Value('#{jobParameters}')
+    		Map<String, Object> jobParameters) {
+    	  
+        new TripleDataValueWrappingReader(
+        		delegate: secondPassDataRowSplitterReader(),
+        		treatZeroAs: jobParameters[StandardHighDimDataParametersModule.TREAT_ZERO_AS])
     }
 
     @Bean
@@ -443,7 +453,10 @@ abstract class AbstractStandardHighDimJobConfiguration extends AbstractJobConfig
 
     @Bean
     @JobScope
-    PerDataRowLog2StatisticsListener perDataRowLog2StatisticsListener() {
-        new PerDataRowLog2StatisticsListener()
+    PerDataRowLog2StatisticsListener perDataRowLog2StatisticsListener(
+    		@Value('#{jobParameters}')
+    		Map<String, Object> jobParameters) {
+        new PerDataRowLog2StatisticsListener(
+        		treatZeroAs: jobParameters[StandardHighDimDataParametersModule.TREAT_ZERO_AS])
     }
 }

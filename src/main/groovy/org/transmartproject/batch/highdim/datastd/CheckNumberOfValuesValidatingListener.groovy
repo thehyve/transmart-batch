@@ -11,23 +11,36 @@ import org.transmartproject.batch.batchartifacts.AbstractSplittingItemReader
  */
 class CheckNumberOfValuesValidatingListener extends ItemStreamSupport implements
         AbstractSplittingItemReader.EagerLineListener<DataPoint> {
-
+	//parameter for how to treat zero values:
+	String treatZeroAs
+	
     @Override
     void onLine(FieldSet fieldSet, Collection<DataPoint> items) {
         int c = 0
+        int totalZeroItems = 0
         for (DataPoint p in items) {
             if (p.value > 0) {
                 c++
             }
+            if (p.value == 0) {
+            	totalZeroItems++
+            }
 
-            if (c >= 2) {
+            //two valid scenarios : 
+            //(1) there are other 0 values, and zero should be seen as a value
+            //(2) there are two or more values
+            if (totalZeroItems > 1 && treatZeroAs == 'VALUE') {
+            	return
+            }            	
+            else if (c >= 2) {
                 return
             }
+            
         }
 
         String annotation = fieldSet.readString(0)
         throw new ValidationException("The annotation $annotation does not " +
-                "have enough positive values for the statistics to be " +
-                "calculated (needs 2, got $c)")
+                "have enough values for the statistics to be " +
+                "calculated (needs at least 2, got $c). Check your values and/or the 'TREAT_ZERO_AS' setting.")
     }
 }
