@@ -3,15 +3,16 @@ package org.transmartproject.batch.highdim.rnaseq.data
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
+import org.springframework.batch.core.job.builder.FlowBuilder
+import org.springframework.batch.core.job.flow.Flow
+import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
-import org.transmartproject.batch.batchartifacts.CollectMinimumPositiveValueListener
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
@@ -19,7 +20,6 @@ import org.transmartproject.batch.db.DeleteByColumnValueWriter
 import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
 import org.transmartproject.batch.highdim.beans.AbstractHighDimJobConfiguration
-import org.transmartproject.batch.highdim.datastd.NegativeDataPointWarningProcessor
 import org.transmartproject.batch.highdim.jobparams.StandardHighDimDataParametersModule
 import org.transmartproject.batch.highdim.platform.annotationsload.GatherAnnotationEntityIdsReader
 import org.transmartproject.batch.startup.StudyJobParametersModule
@@ -53,32 +53,7 @@ class RnaSeqDataJobConfiguration extends AbstractHighDimJobConfiguration {
      ***************/
 
     @Bean
-    Step firstPass() {
-        CollectMinimumPositiveValueListener minPosValueColector = collectMinimumPositiveValueListener()
-        TaskletStep step = steps.get('firstPass')
-                .chunk(dataFilePassChunkSize)
-                //TODO Validate assays ids and annotations
-                .reader(rnaSeqDataTsvFileReader())
-                .processor(warningNegativeDataPointToNaNProcessor())
-                .stream(minPosValueColector)
-                .listener(minPosValueColector)
-                .listener(logCountsStepListener())
-                .build()
-
-        step
-    }
-
-    @Bean
-    @JobScope
-    NegativeDataPointWarningProcessor warningNegativeDataPointToNaNProcessor() {
-        new NegativeDataPointWarningProcessor()
-    }
-
-    @Bean
-    @JobScope
-    CollectMinimumPositiveValueListener collectMinimumPositiveValueListener() {
-        new CollectMinimumPositiveValueListener()
-    }
+    Step firstPass() { null }
 
     /***************
      * Second pass *
@@ -87,22 +62,48 @@ class RnaSeqDataJobConfiguration extends AbstractHighDimJobConfiguration {
     @Bean
     @Override
     Step secondPass() {
-        TaskletStep step = steps.get('secondPass')
+        steps.get('secondPass')
+                .flow(mainWorkflow())
+                .build()
+    }
+
+    /***************
+     * Main *
+     ***************/
+
+    @Bean
+    Flow mainWorkflow() {
+        new FlowBuilder<SimpleFlow>('mainFlow')
+                .start(writeDataStep())
+                .next(calculateLogAndZscoreStep())
+                .build()
+    }
+
+    @Bean
+    Step writeDataStep() {
+        steps.get('writeData')
                 .chunk(dataFilePassChunkSize)
                 .reader(rnaSeqDataTsvFileReader())
-                //TODO calculate log and zscore
                 .processor(standardDataValuePatientInjectionProcessor())
                 .writer(dataPointWriter())
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()
 
-        step
     }
 
-    /***************
-     * Main *
-     ***************/
+    @Bean
+    Step calculateLogAndZscoreStep() {
+        steps.get('calculateLogAndZscore')
+                .tasklet(calculateLogAndZscoreTasklet())
+                .build()
+
+    }
+
+    @Bean
+    Tasklet calculateLogAndZscoreTasklet() {
+        new CalculateLogAndZscoreTasklet()
+    }
 
     @Bean
     @JobScopeInterfaced

@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.castingCloseTo
 
 /**
  * test RNASeq data first load
@@ -111,6 +112,8 @@ class RnaSeqDataCleanScenarioTests implements JobRunningTestTrait {
                 SELECT
                     D.readcount,
                     D.normalized_readcount,
+                    D.log_normalized_readcount,
+                    D.zscore,
                     D.patient_id
                 FROM
                     ${Tables.RNASEQ_DATA} D
@@ -129,14 +132,23 @@ class RnaSeqDataCleanScenarioTests implements JobRunningTestTrait {
 
         long readcount = 899
         double normalizedReadcount = 193.288d
-        //def logValue = new BigDecimal(Math.log(value) / Math.log(2d))
+        double logValue = Math.log(normalizedReadcount) / Math.log(2d)
+
+        def stats = queryForMap """
+            SELECT
+                stddev_samp(log_normalized_readcount) as stddev, avg(log_normalized_readcount) as mean
+            FROM ${Tables.RNASEQ_DATA} D
+            INNER JOIN ${Tables.CHROMOSOMAL_REGION} A ON (D.region_id = A.region_id)
+            WHERE A.region_name = :reg_name AND D.trial_name = :study_id
+            """, [ study_id: STUDY_ID, reg_name: '_WASH7P' ]
 
         assertThat r, allOf(
                 hasEntry('readcount', readcount),
                 hasEntry(equalTo('normalized_readcount'), closeTo(normalizedReadcount, DELTA)),
                 hasEntry(equalTo('patient_id'), notNullValue()),
-                //TODO Calculate log and zscore
-                // hasEntry(equalTo('log_normalized_readcount'), closeTo(logValue, DELTA)),
+                hasEntry(equalTo('log_normalized_readcount'), closeTo(logValue, DELTA)),
+                hasEntry(is('zscore'),
+                        castingCloseTo((logValue - stats.mean) / stats.stddev, DELTA)),
         )
     }
 
