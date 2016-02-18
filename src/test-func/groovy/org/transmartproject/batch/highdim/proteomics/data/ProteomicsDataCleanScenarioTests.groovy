@@ -99,9 +99,9 @@ class ProteomicsDataCleanScenarioTests implements JobRunningTestTrait {
                         '\\High-throughput molecular profiling\\Expression (protein)\\LC-MS-MS\\Protein level' +
                         '\\LFQ-2\\MZ ratios\\'),
                 hasEntry(is('assay_id'), isA(Number)),
-                hasEntry('sample_type', 'Colon'),
+                hasEntry(is('sample_type'), nullValue()),
                 hasEntry('trial_name', STUDY_ID),
-                hasEntry('tissue_type', 'LFQ-2'),
+                hasEntry('tissue_type', 'Colon'),
                 hasEntry('gpl_id', 'PROT_ANNOT'),
         )
     }
