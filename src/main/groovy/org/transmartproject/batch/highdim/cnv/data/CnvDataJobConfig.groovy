@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -11,16 +11,16 @@ import org.transmartproject.batch.highdim.platform.chrregion.ChromosomalRegionSt
 import javax.annotation.Resource
 
 /**
- * Spring context for Acgh data loading job.
+ * Spring context for CNV data loading job.
  */
 @Configuration
 @Import([
         ChromosomalRegionStepsConfig,
-        AcghDataStepsConfig,
+        CnvDataStepsConfig,
 ])
-class AcghDataJobConfig extends AbstractTypicalHdDataJobConfig {
+class CnvDataJobConfig extends AbstractTypicalHdDataJobConfig {
 
-    public static final String JOB_NAME = 'acghDataJob'
+    public static final String JOB_NAME = 'cnvDataJob'
 
     @Resource
     Step loadAnnotationMappings
@@ -35,7 +35,7 @@ class AcghDataJobConfig extends AbstractTypicalHdDataJobConfig {
     Step secondPass
 
     @Bean
-    Job acghDataJob() {
+    Job cnvDataJob() {
         jobs.get(JOB_NAME)
                 .start(typicalHdDataFlow())
                 .end()

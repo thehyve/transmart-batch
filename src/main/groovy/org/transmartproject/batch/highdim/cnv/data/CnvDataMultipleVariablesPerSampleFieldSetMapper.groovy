@@ -1,43 +1,43 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.batchartifacts.AbstractMultipleVariablesPerSampleFieldSetMapper
 
 /**
- * Implementation of {@link AbstractMultipleVariablesPerSampleFieldSetMapper} for {@link AcghDataValue}
+ * Implementation of {@link AbstractMultipleVariablesPerSampleFieldSetMapper} for {@link CnvDataValue}
  */
 @Component
-class AcghDataMultipleVariablesPerSampleFieldSetMapper
+class CnvDataMultipleVariablesPerSampleFieldSetMapper
         extends AbstractMultipleVariablesPerSampleFieldSetMapper {
     @Override
     Object newInstance(String annotation, String sampleCode) {
-        new AcghDataValue(regionName: annotation, sampleCode: sampleCode)
+        new CnvDataValue(regionName: annotation, sampleCode: sampleCode)
     }
 
     final Map<String, Closure> fieldSetters =
             [
-                    flag       : { AcghDataValue instance, String value ->
+                    flag       : { CnvDataValue instance, String value ->
                         instance.flag = (value.trim() ?: null) as Integer
                     },
-                    chip       : { AcghDataValue instance, String value ->
+                    chip       : { CnvDataValue instance, String value ->
                         instance.chip = (value.trim() ?: null) as Double
                     },
-                    segmented  : { AcghDataValue instance, String value ->
+                    segmented  : { CnvDataValue instance, String value ->
                         instance.segmented = (value.trim() ?: null) as Double
                     },
-                    probhomloss: { AcghDataValue instance, String value ->
+                    probhomloss: { CnvDataValue instance, String value ->
                         instance.probHomLoss = (value.trim() ?: null) as Double
                     },
-                    probloss   : { AcghDataValue instance, String value ->
+                    probloss   : { CnvDataValue instance, String value ->
                         instance.probLoss = (value.trim() ?: null) as Double
                     },
-                    probnorm   : { AcghDataValue instance, String value ->
+                    probnorm   : { CnvDataValue instance, String value ->
                         instance.probNorm = (value.trim() ?: null) as Double
                     },
-                    probgain   : { AcghDataValue instance, String value ->
+                    probgain   : { CnvDataValue instance, String value ->
                         instance.probGain = (value.trim() ?: null) as Double
                     },
-                    probamp    : { AcghDataValue instance, String value ->
+                    probamp    : { CnvDataValue instance, String value ->
                         instance.probAmp = (value.trim() ?: null) as Double
                     },
             ]

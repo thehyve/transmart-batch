@@ -1,17 +1,17 @@
-# ACGH
+# Copy Number Variation
 
 ## Platform Upload
 
-Your platform configuration file has to have the `acgh_annotation.params` name.
+Your platform configuration file has to have the `cnv_annotation.params` name.
 The content of the params file is the same as for other HD data types.
 
 For format of the platform data file see [chromosomal_region.md](chromosomal_region.md)
 
-## ACGH Data Upload
+## Copy Number Variation Data Upload
 
-Your must have `acgh.params` file. For possible parameter see [hd-params.md](hd-params.md).
+Your must have `cnv.params` file. For possible parameter see [hd-params.md](hd-params.md).
 
-Below is the expected file format for ACGH data input files.
+Below is the expected file format for CNV data input files.
 First column always has to be region name. The rest of the columns are recognised by the name, not by position.
 Replace `<sample_code>` with an actual sample code (e.g. `CACO2`).
 

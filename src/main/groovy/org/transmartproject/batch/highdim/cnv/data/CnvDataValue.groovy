@@ -1,14 +1,14 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import groovy.transform.Canonical
 import org.transmartproject.batch.highdim.datastd.PatientInjectionSupport
 import org.transmartproject.batch.patient.Patient
 
 /**
- * Acgh data bean.
+ * Copy number variation data bean.
  */
 @Canonical
-class AcghDataValue implements PatientInjectionSupport {
+class CnvDataValue implements PatientInjectionSupport {
 
     String regionName
     String sampleCode

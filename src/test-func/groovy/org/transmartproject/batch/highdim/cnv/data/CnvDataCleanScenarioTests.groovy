@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import org.junit.AfterClass
 import org.junit.ClassRule
@@ -22,14 +22,14 @@ import static org.transmartproject.batch.matchers.AcceptAnyNumberIsCloseTo.casti
 import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
- * test ACGH data first load
+ * test CNV data first load
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class AcghDataCleanScenarioTests implements JobRunningTestTrait {
+class CnvDataCleanScenarioTests implements JobRunningTestTrait {
 
     private final static String STUDY_ID = 'CLUC'
-    private final static String PLATFORM_ID = 'ACGH_ANNOT'
+    private final static String PLATFORM_ID = 'CNV_ANNOT'
 
     private final static long NUMBER_OF_ASSAYS = 3
     private final static long NUMBER_OF_REGIONS = 4
@@ -38,8 +38,8 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
 
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
-            new RunJobRule(STUDY_ID, 'acgh'),
-            new RunJobRule(PLATFORM_ID, 'acgh_annotation'),
+            new RunJobRule(STUDY_ID, 'cnv'),
+            new RunJobRule(PLATFORM_ID, 'cnv_annotation'),
             new RunJobRule(STUDY_ID, 'clinical'),
     ])
 
@@ -51,7 +51,7 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
     static void cleanDatabase() {
         new AnnotationConfigApplicationContext(
                 GenericFunctionalTestConfiguration).getBean(TableTruncator).
-                truncate(TableLists.CLINICAL_TABLES + TableLists.ACGH_TABLES + 'ts_batch.batch_job_instance',)
+                truncate(TableLists.CLINICAL_TABLES + TableLists.CNV_TABLES + 'ts_batch.batch_job_instance',)
     }
 
     @Test
@@ -65,7 +65,7 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
 
     @Test
     void testNumberOfFacts() {
-        def count = rowCounter.count Tables.ACGH_DATA,
+        def count = rowCounter.count Tables.CNV_DATA,
                 'trial_name = :study_id',
                 study_id: STUDY_ID
 
@@ -75,7 +75,7 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
 
     @Test
     void testArbitrarySample() {
-        def sampleCode = 'ACGH.COLO205'
+        def sampleCode = 'CNV.COLO205'
         def subjectId = 'COLO205'
 
         def q = """
@@ -97,7 +97,7 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
 
         assertThat r, allOf(
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
-                hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\ACGH\\Test\\Acgh\\cgh\\data\\'),
+                hasEntry('cd_concept_path', '\\Public Studies\\CLUC\\CNV\\Test\\Cnv\\cgh\\data\\'),
                 hasEntry(is('assay_id'), isA(Number)),
                 hasEntry('tissue_type', 'Colon'),
                 hasEntry('timepoint', 't1'),
@@ -120,7 +120,7 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
                     D.probgain,
                     D.probamp
                 FROM
-                    ${Tables.ACGH_DATA} D
+                    ${Tables.CNV_DATA} D
                     INNER JOIN ${Tables.SUBJ_SAMPLE_MAP} S ON (D.assay_id = S.assay_id)
                     INNER JOIN ${Tables.CHROMOSOMAL_REGION} A ON (D.region_id = A.region_id)
                 WHERE
@@ -129,7 +129,7 @@ class AcghDataCleanScenarioTests implements JobRunningTestTrait {
                     AND D.trial_name = :study_id"""
 
         def p = [study_id   : STUDY_ID,
-                 sample_name: 'ACGH.DLD1',
+                 sample_name: 'CNV.DLD1',
                  reg_name   : 'FAM138F']
 
         Map<String, Object> r = queryForMap q, p

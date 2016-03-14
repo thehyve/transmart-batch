@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import groovy.transform.TypeChecked
 import org.transmartproject.batch.highdim.jobparams.StandardAssayParametersModule
@@ -8,16 +8,16 @@ import org.transmartproject.batch.startup.JobSpecification
 import org.transmartproject.batch.startup.StudyJobParametersModule
 
 /**
- * External parameters for RNASeq data.
+ * External parameters for the copy number value data.
  */
 @TypeChecked
-class AcghDataJobSpecification implements JobSpecification {
+class CnvDataJobSpecification implements JobSpecification {
 
     final List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),
-            new StandardAssayParametersModule('Acgh'),
+            new StandardAssayParametersModule('Cnv'),
             new StandardHighDimDataParametersModule()
     ]
 
-    final Class<?> jobPath = AcghDataJobConfig
+    final Class<?> jobPath = CnvDataJobConfig
 }

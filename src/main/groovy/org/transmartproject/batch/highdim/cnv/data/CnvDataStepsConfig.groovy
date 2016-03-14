@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.Step
@@ -32,13 +32,13 @@ import org.transmartproject.batch.startup.StudyJobParametersModule
 import org.transmartproject.batch.support.JobParameterFileResource
 
 /**
- * Spring batch steps configuration for Acgh data upload
+ * Spring batch steps configuration for CNV data upload
  */
 @Configuration
 @ComponentScan
 @Import([DbConfig, AssayStepsConfig])
 @Slf4j
-class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
+class CnvDataStepsConfig implements StepBuildingConfigurationTrait {
 
     static int dataFilePassChunkSize = 10000
 
@@ -46,11 +46,11 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
     DatabaseImplementationClassPicker picker
 
     @Bean
-    Step firstPass(AcghDataValueValidator acghDataValueValidator) {
+    Step firstPass(CnvDataValueValidator cnvDataValueValidator) {
         TaskletStep step = steps.get('firstPass')
                 .chunk(dataFilePassChunkSize)
-                .reader(acghDataTsvFileReader())
-                .processor(new ValidatingItemProcessor(adaptValidator(acghDataValueValidator)))
+                .reader(cnvDataTsvFileReader())
+                .processor(new ValidatingItemProcessor(adaptValidator(cnvDataValueValidator)))
                 .listener(logCountsStepListener())
                 .build()
 
@@ -62,7 +62,7 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
         steps.get('deleteHdData')
                 .chunk(100)
                 .reader(currentAssayIdsReader)
-                .writer(deleteAcghDataWriter())
+                .writer(deleteCnvDataWriter())
                 .build()
     }
 
@@ -72,12 +72,12 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step secondPass(ItemWriter<AcghDataValue> acghDataWriter) {
+    Step secondPass(ItemWriter<CnvDataValue> cnvDataWriter) {
         TaskletStep step = steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
-                .reader(acghDataTsvFileReader())
+                .reader(cnvDataTsvFileReader())
                 .processor(patientInjectionProcessor())
-                .writer(acghDataWriter)
+                .writer(cnvDataWriter)
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()
@@ -99,11 +99,11 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    ItemStreamReader acghDataTsvFileReader(
-            AcghDataMultipleVariablesPerSampleFieldSetMapper acghDataMultipleSamplesFieldSetMapper) {
+    ItemStreamReader cnvDataTsvFileReader(
+            CnvDataMultipleVariablesPerSampleFieldSetMapper cnvDataMultipleSamplesFieldSetMapper) {
         new MultipleItemsLineItemReader(
                 resource: dataFileResource(),
-                multipleItemsFieldSetMapper: acghDataMultipleSamplesFieldSetMapper
+                multipleItemsFieldSetMapper: cnvDataMultipleSamplesFieldSetMapper
         )
     }
 
@@ -117,15 +117,15 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
         switch (picker.pickClass(PostgresPartitionTasklet, OraclePartitionTasklet)) {
             case PostgresPartitionTasklet:
                 return new PostgresPartitionTasklet(
-                        tableName: Tables.ACGH_DATA,
+                        tableName: Tables.CNV_DATA,
                         partitionByColumn: 'trial_name',
                         partitionByColumnValue: studyId,
-                        //old acgh pipeline uses seq_mrna_partition_id
+                        //old cnv pipeline uses seq_mrna_partition_id
                         sequence: Sequences.MRNA_PARTITION_ID,
                         primaryKey: ['assay_id', 'region_id'])
             case OraclePartitionTasklet:
                 return new OraclePartitionTasklet(
-                        tableName: Tables.ACGH_DATA,
+                        tableName: Tables.CNV_DATA,
                         partitionByColumnValue: studyId)
             default:
                 throw new IllegalStateException('No supported DBMS detected.')
@@ -133,9 +133,9 @@ class AcghDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    DeleteByColumnValueWriter<Long> deleteAcghDataWriter() {
+    DeleteByColumnValueWriter<Long> deleteCnvDataWriter() {
         new DeleteByColumnValueWriter<Long>(
-                table: Tables.ACGH_DATA,
+                table: Tables.CNV_DATA,
                 column: 'assay_id')
     }
 

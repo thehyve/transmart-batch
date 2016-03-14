@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import org.junit.Before
 import org.junit.Test
@@ -10,18 +10,18 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
 /**
- * Test... {@link org.transmartproject.batch.highdim.acgh.data.AcghDataValueValidator}!
+ * Test... {@link org.transmartproject.batch.highdim.cnv.data.CnvDataValueValidator}!
  */
-class AcghDataValueValidatorTests {
+class CnvDataValueValidatorTests {
 
-    AcghDataValueValidator testee
-    AcghDataValue acghDataValue
+    CnvDataValueValidator testee
+    CnvDataValue cnvDataValue
     Errors errors
 
     @Before
     void setUp() {
-        testee = new AcghDataValueValidator()
-        acghDataValue = new AcghDataValue(
+        testee = new CnvDataValueValidator()
+        cnvDataValue = new CnvDataValue(
                 regionName: 'region-name',
                 sampleCode: 'sample-code',
                 flag: 0,
@@ -34,7 +34,7 @@ class AcghDataValueValidatorTests {
                 probGain: 0.2d,
                 probAmp: 0.1d
         )
-        errors = new BeanPropertyBindingResult(acghDataValue, "item")
+        errors = new BeanPropertyBindingResult(cnvDataValue, "item")
     }
 
     @Test
@@ -44,7 +44,7 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testRegionNameIsNull() {
-        acghDataValue.regionName = null
+        cnvDataValue.regionName = null
 
         List<ObjectError> errors = callValidate().allErrors
 
@@ -56,7 +56,7 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testRegionNameIsEmptyString() {
-        acghDataValue.regionName = ''
+        cnvDataValue.regionName = ''
 
         List<ObjectError> errors = callValidate().allErrors
 
@@ -68,7 +68,7 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testRegionNameIsBlank() {
-        acghDataValue.regionName = ' '
+        cnvDataValue.regionName = ' '
 
         List<ObjectError> errors = callValidate().allErrors
 
@@ -80,7 +80,7 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testSampleCodeIsNull() {
-        acghDataValue.sampleCode = null
+        cnvDataValue.sampleCode = null
 
         List<ObjectError> errors = callValidate().allErrors
 
@@ -92,7 +92,7 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testSampleCodeIsEmptyString() {
-        acghDataValue.sampleCode = ''
+        cnvDataValue.sampleCode = ''
 
         List<ObjectError> errors = callValidate().allErrors
 
@@ -104,7 +104,7 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testSampleCodeIsBlank() {
-        acghDataValue.sampleCode = ' '
+        cnvDataValue.sampleCode = ' '
 
         List<ObjectError> errors = callValidate().allErrors
 
@@ -116,7 +116,7 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testFlagHasNotAllowedValue() {
-        acghDataValue.flag = -3
+        cnvDataValue.flag = -3
 
         List<ObjectError> errors = callValidate().allErrors
 
@@ -128,8 +128,8 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testProbabilitiesDoNotSumUpToOne() {
-        acghDataValue.probHomLoss = 1
-        acghDataValue.probGain = 0.5
+        cnvDataValue.probHomLoss = 1
+        cnvDataValue.probGain = 0.5
 
         List<ObjectError> errors = callValidate().allErrors
 
@@ -140,11 +140,11 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testIncorrectProbabilities() {
-        acghDataValue.probHomLoss = 3
-        acghDataValue.probLoss = 2
-        acghDataValue.probNorm = 1
-        acghDataValue.probGain = -2
-        acghDataValue.probAmp = -3
+        cnvDataValue.probHomLoss = 3
+        cnvDataValue.probLoss = 2
+        cnvDataValue.probNorm = 1
+        cnvDataValue.probGain = -2
+        cnvDataValue.probAmp = -3
 
         List<ObjectError> errors = callValidate().allErrors
 
@@ -166,7 +166,7 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testFlagIncorrectWhileSeveralFlagCandidates() {
-        acghDataValue.with {
+        cnvDataValue.with {
             flag = 0
             probHomLoss = 0.25
             probLoss = 0.2
@@ -186,7 +186,7 @@ class AcghDataValueValidatorTests {
 
     @Test
     void testFlagCorrectWhileSeveralFlagCandidates() {
-        acghDataValue.with {
+        cnvDataValue.with {
             flag = -2
             probHomLoss = 0.25
             probLoss = 0.2
@@ -199,7 +199,7 @@ class AcghDataValueValidatorTests {
     }
 
     private Errors callValidate() {
-        testee.validate(acghDataValue, errors)
+        testee.validate(cnvDataValue, errors)
         errors
     }
 }

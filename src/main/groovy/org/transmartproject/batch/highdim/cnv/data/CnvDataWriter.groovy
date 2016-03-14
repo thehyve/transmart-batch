@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.item.ItemWriter
@@ -18,7 +18,7 @@ import static org.transmartproject.batch.clinical.db.objects.Tables.tableName
  */
 @Component
 @JobScope
-class AcghDataWriter implements ItemWriter<AcghDataValue> {
+class CnvDataWriter implements ItemWriter<CnvDataValue> {
 
     @Value("#{jobParameters['STUDY_ID']}")
     private String studyId
@@ -26,13 +26,13 @@ class AcghDataWriter implements ItemWriter<AcghDataValue> {
     @Autowired
     private AnnotationEntityMap annotationEntityMap
 
-    @Value("#{acghDataJobContextItems.patientIdAssayIdMap}")
+    @Value("#{cnvDataJobContextItems.patientIdAssayIdMap}")
     Map<String, Long> patientIdAssayIdMap
 
     @Autowired
     private JdbcTemplate jdbcTemplate
 
-    @Value("#{acghDataJobContextItems.partitionTableName}")
+    @Value("#{cnvDataJobContextItems.partitionTableName}")
     private String qualifiedTableName
 
     @Lazy
@@ -44,12 +44,12 @@ class AcghDataWriter implements ItemWriter<AcghDataValue> {
     }()
 
     @Override
-    void write(List<? extends AcghDataValue> items) throws Exception {
+    void write(List<? extends CnvDataValue> items) throws Exception {
         int[] result = jdbcInsert.executeBatch(items.collect {
 
             Long assayId = patientIdAssayIdMap[it.sampleCode]
             if (!assayId) {
-                throw new IllegalArgumentException("Passed acgh data value with " +
+                throw new IllegalArgumentException("Passed cnv data value with " +
                         "unknown sample code (${it.sampleCode}). Known ids are " +
                         patientIdAssayIdMap.keySet().sort())
             }
@@ -70,7 +70,7 @@ class AcghDataWriter implements ItemWriter<AcghDataValue> {
             ]
         } as Map[])
         DatabaseUtil.checkUpdateCounts(result,
-                "inserting acgh data in $qualifiedTableName")
+                "inserting cnv data in $qualifiedTableName")
     }
 
 }

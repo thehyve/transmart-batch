@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.acgh.platform
+package org.transmartproject.batch.highdim.cnv.platform
 
 import org.junit.AfterClass
 import org.junit.ClassRule
@@ -18,18 +18,18 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 
 /**
- * Test Acgh platform load from a clean state.
+ * Test CNV platform load from a clean state.
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class AcghPlatformCleanScenarioTests implements JobRunningTestTrait {
+class CnvPlatformCleanScenarioTests implements JobRunningTestTrait {
 
-    private final static String PLATFORM_ID = 'ACGH_ANNOT'
+    private final static String PLATFORM_ID = 'CNV_ANNOT'
     private final static String MARKER_TYPE = 'Chromosomal'
     private final static Long NUMBER_OF_REGIONS = 4
 
     @ClassRule
-    public final static RunJobRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID, 'acgh_annotation')
+    public final static RunJobRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID, 'cnv_annotation')
 
     @AfterClass
     static void cleanDatabase() {
@@ -50,7 +50,7 @@ class AcghPlatformCleanScenarioTests implements JobRunningTestTrait {
 
         Map<String, Object> r = queryForMap q, p
         assertThat r, allOf(
-                hasEntry('title', 'Test Acgh Platform'),
+                hasEntry('title', 'Test Cnv Platform'),
                 hasEntry('organism', 'Homo Sapiens'),
                 hasEntry('marker_type', MARKER_TYPE),
                 hasEntry('genome_build', 'hg19'),

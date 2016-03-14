@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.item.ExecutionContext
@@ -13,7 +13,7 @@ import org.transmartproject.batch.highdim.assays.SaveAssayIdListener
 
 @JobScope
 @Component
-class AcghDataJobContextItems {
+class CnvDataJobContextItems {
 
     @Value('#{jobExecution.executionContext}')
     ExecutionContext jobExecutionContext

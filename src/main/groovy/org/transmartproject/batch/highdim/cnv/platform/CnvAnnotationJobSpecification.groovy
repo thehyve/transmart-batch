@@ -1,12 +1,12 @@
-package org.transmartproject.batch.highdim.acgh.platform
+package org.transmartproject.batch.highdim.cnv.platform
 
 import org.transmartproject.batch.highdim.platform.AbstractPlatformJobSpecification
 import org.transmartproject.batch.highdim.platform.chrregion.ChromosomalRegionJobConfig
 
 /**
- * Job specification for ACGH platform loading.
+ * Job specification for copy number variation platform loading.
  */
-final class AcghAnnotationJobSpecification extends AbstractPlatformJobSpecification {
+final class CnvAnnotationJobSpecification extends AbstractPlatformJobSpecification {
     final String markerType = 'Chromosomal'
     final Class jobPath = ChromosomalRegionJobConfig
 }

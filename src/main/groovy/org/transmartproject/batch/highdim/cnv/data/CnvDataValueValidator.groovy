@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.acgh.data
+package org.transmartproject.batch.highdim.cnv.data
 
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
@@ -6,11 +6,11 @@ import org.springframework.validation.Errors
 import org.springframework.validation.Validator
 
 /**
- * Validates {@link org.transmartproject.batch.highdim.acgh.data.AcghDataValue} objects.
+ * Validates {@link CnvDataValue} objects.
  */
 @Component
 @Slf4j
-class AcghDataValueValidator implements Validator {
+class CnvDataValueValidator implements Validator {
 
     public static final double ERROR = 0.01d
     public static final Map FLAG_TO_PROBABILITY_FIELD_MAP = [
@@ -24,12 +24,12 @@ class AcghDataValueValidator implements Validator {
 
     @Override
     boolean supports(Class<?> clazz) {
-        clazz == AcghDataValue
+        clazz == CnvDataValue
     }
 
     @Override
     void validate(Object target, Errors errors) {
-        AcghDataValue item = target
+        CnvDataValue item = target
 
         if (!item.sampleCode?.trim()) {
             errors.rejectValue 'sampleCode', 'required',
