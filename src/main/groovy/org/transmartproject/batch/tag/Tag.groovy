@@ -25,5 +25,7 @@ class Tag implements Serializable {
 
     int index
 
+    Integer tagOptionId
+
 }
 
