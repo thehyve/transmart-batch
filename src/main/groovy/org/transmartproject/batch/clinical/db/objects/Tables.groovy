@@ -67,4 +67,13 @@ final class Tables {
 
     public static final String ACGH_DATA                = 'deapp.de_subject_acgh_data'
 
+    public static final String AM_TAG_ITEM              = 'amapp.am_tag_item'
+    public static final String AM_TAG_ASSOCIATION       = 'amapp.am_tag_association'
+    public static final String AM_TAG_VALUE             = 'amapp.am_tag_value'
+    public static final String AM_DATA_UID              = 'amapp.am_data_uid'
+    public static final String AM_TAG_TEMPLATE          = 'amapp.am_tag_template'
+    public static final String BIO_CONCEPT_CODE         = 'biomart.bio_concept_code'
+    public static final String FM_FOLDER                = 'fmapp.fm_folder'
+    public static final String FM_DATA_UID              = 'fmapp.fm_data_uid'
+
 }

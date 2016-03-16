@@ -8,6 +8,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.JobParameter
 import org.springframework.batch.core.JobParameters
 import org.transmartproject.batch.backout.BackoutJobSpecification
+import org.transmartproject.batch.browsetag.BrowseTagsExportJobSpecification
 import org.transmartproject.batch.clinical.ClinicalJobSpecification
 import org.transmartproject.batch.gwas.GwasJobSpecification
 import org.transmartproject.batch.highdim.acgh.data.AcghDataJobSpecification
@@ -57,6 +58,7 @@ final class JobStartupDetails {
             'rnaseq'                 : RnaSeqDataJobSpecification,
             'acgh_annotation'        : AcghAnnotationJobSpecification,
             'acgh'                   : AcghDataJobSpecification,
+            'browsetagsexport'       : BrowseTagsExportJobSpecification,
     ]
     public static final String STUDY_PARAMS_FILE_NAME = 'study' + PARAMS_FILE_EXTENSION
     public static final String PARAMS_FILE_EXTENSION = '.params'
@@ -266,6 +268,23 @@ final class JobStartupDetails {
                                     "$file is not regular readable file")
                 }
 
+                file
+            }
+
+            Path convertRelativeWritePath(String parameter) {
+                def fileName = this[parameter]
+                if (fileName == null) {
+                    return
+                }
+
+                def absolutePath = filePath.toAbsolutePath()
+                def dir = absolutePath.parent.resolve(typeName)
+                def file = dir.resolve(fileName)
+                if (Files.exists(file)) {
+                    throw new InvalidParametersFileException(
+                            "Parameter $parameter references $fileName, but " +
+                                    "$file already exists")
+                }
                 file
             }
 

@@ -32,8 +32,16 @@ interface ExternalJobParametersInternalInterface {
     /**
      * Reads a parameter with a relative path value and turns it into an
      * absolute path.
+     * Fails if the file does not exists.
      */
     Path convertRelativePath(String parameter)
+
+    /**
+     * Reads a parameter with a relative path value and turns it into an
+     * absolute path.
+     * Fails if the file already exists.
+     */
+    Path convertRelativeWritePath(String parameter)
 
     /**
      * Throws if the parameter is not present.
