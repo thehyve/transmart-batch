@@ -26,6 +26,10 @@ class MappingFileRowToConceptMapper {
     private ConceptTree conceptTree
 
     ConceptNode getAt(MappingFileRow row) {
-        conceptTree[topNode + nodeName + row.conceptFragment]
+        ConceptPath conceptPath = nodeName ?
+                topNode + nodeName + row.conceptFragment
+                : topNode + row.conceptFragment
+
+        conceptTree[conceptPath]
     }
 }

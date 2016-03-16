@@ -49,9 +49,10 @@ class ConceptStepsConfig implements StepBuildingConfigurationTrait {
 
     @Bean
     @JobScopeInterfaced
-    Tasklet deleteConceptCountsTasklet(@Value("#{jobParameters['TOP_NODE'].toString()}#{jobParameters['NODE_NAME']}")
-                                               ConceptPath basePath) {
-        new DeleteConceptCountsTasklet(basePath: basePath)
+    Tasklet deleteConceptCountsTasklet(
+            @Value("#{jobParameters['TOP_NODE']}") ConceptPath topNode,
+            @Value("#{jobParameters['NODE_NAME']}") String nodeName) {
+        new DeleteConceptCountsTasklet(basePath: nodeName ? topNode + nodeName : topNode)
     }
 
     @Bean
@@ -61,12 +62,13 @@ class ConceptStepsConfig implements StepBuildingConfigurationTrait {
 
     @Bean
     @JobScopeInterfaced
-    Tasklet insertConceptCountsTasklet(@Value("#{jobParameters['TOP_NODE'].toString()}#{jobParameters['NODE_NAME']}")
-                                               ConceptPath basePath) {
+    Tasklet insertConceptCountsTasklet(
+            @Value("#{jobParameters['TOP_NODE']}") ConceptPath topNode,
+            @Value("#{jobParameters['NODE_NAME']}") String nodeName) {
         picker.instantiateCorrectClass(
                 OracleInsertConceptCountsTasklet,
                 PostgresInsertConceptCountsTasklet).with { InsertConceptCountsTasklet t ->
-            t.basePath = basePath
+            t.basePath = nodeName ? topNode + nodeName : topNode
             t
         }
     }

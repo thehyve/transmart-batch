@@ -13,12 +13,6 @@ class StandardAssayParametersModule implements ExternalJobParametersModule {
     public final static String NODE_NAME = 'NODE_NAME'
     public final static String MAP_FILENAME = 'MAP_FILENAME'
 
-    private final String defaultNodeName
-
-    StandardAssayParametersModule(String defaultNodeName) {
-        this.defaultNodeName = defaultNodeName
-    }
-
     Set<String> supportedParameters = ImmutableSet.of(
             NODE_NAME,
             MAP_FILENAME,)
@@ -29,8 +23,6 @@ class StandardAssayParametersModule implements ExternalJobParametersModule {
 
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
-        ejp[NODE_NAME] = ejp[NODE_NAME] ?: defaultNodeName
-
         ejp[MAP_FILENAME] = ejp.convertRelativePath MAP_FILENAME
     }
 }

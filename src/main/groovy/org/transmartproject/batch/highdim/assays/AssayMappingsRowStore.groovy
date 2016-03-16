@@ -52,7 +52,7 @@ class AssayMappingsRowStore implements MappingsFileRowStore {
 
     Set<ConceptPath> getAllConceptPaths() {
         def ret = Sets.newHashSet()
-        ConceptPath base = topNode + nodeName
+        ConceptPath base = nodeName ? topNode + nodeName : topNode
         rows.each {
             ret << base + it.conceptFragment
         }
