@@ -53,8 +53,7 @@ class AssayStepsConfig implements StepBuildingConfigurationTrait {
                 delimiter: DELIMITER_TAB,
                 names: ['studyId', 'siteId', 'subjectId', 'sampleCd',
                         'platform', 'sampleType', 'tissueType', 'timePoint',
-                        'categoryCd', 'source_cd'],
-        )
+                        'categoryCd'])
         new FlatFileItemReader(
                 lineMapper: new DefaultLineMapper(
                         lineTokenizer: lineTokenizer,

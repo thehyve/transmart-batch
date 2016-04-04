@@ -2,9 +2,9 @@
 
 This is the mapping file format:
 
-| `STUDY_ID` | `SITE_ID` | `SUBJECT_ID`     | `SAMPLE_CD` | `PLATFORM`   | `SAMPLE_TYPE`| `TISSUE_TYPE`  | `TIME_POINT`   | `CATEGORY_CD`                      | `SOURCE_CD` |
-|------------|-----------|------------------|-------------|--------------|--------------|----------------|----------------|------------------------------------|-------------|
-| GSE8581    |           | GSE8581GSM210005 | GSM210005   | GPL570_BOGUS | Human        | Lung           | Week1          | Biomarker_Data+PLATFORM+TISSUETYPE | STD         |
+| `STUDY_ID` | `SITE_ID` | `SUBJECT_ID`     | `SAMPLE_CD` | `PLATFORM`   | `SAMPLE_TYPE`| `TISSUE_TYPE`  | `TIME_POINT`   | `CATEGORY_CD`                      |
+|------------|-----------|------------------|-------------|--------------|--------------|----------------|----------------|------------------------------------|
+| GSE8581    |           | GSE8581GSM210005 | GSM210005   | GPL570_BOGUS | Human        | Lung           | Week1          | Biomarker_Data+PLATFORM+TISSUETYPE |
 
 The first row is skipped. It must be present, otherwise the first assay will be
 ignored.
@@ -30,4 +30,3 @@ ignored.
   created. Components of the path are separated with `+`. It can include several
   placeholders (see the descriptions of the other columns). In principle it can
   differ among the several assays, but that code path has never been tested.
-- `SOURCE_CD` is ignored (must be present as a last column).

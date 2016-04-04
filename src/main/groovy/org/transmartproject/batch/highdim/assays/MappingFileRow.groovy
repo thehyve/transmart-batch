@@ -20,7 +20,6 @@ class MappingFileRow {
     String sampleType
     String timePoint
     String categoryCd /* the path under TOP_NODE */
-    String sourceCd /* IGNORED */
 
     void setStudyId(String studyId) {
         /* normalize study id */
