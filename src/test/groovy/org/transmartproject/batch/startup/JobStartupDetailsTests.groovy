@@ -175,6 +175,23 @@ class JobStartupDetailsTests {
         JobStartupDetails.fromFile(paramsFile)
     }
 
+    @Test(expected = InvalidParametersFileException)
+    void testEmptyParameterNotAllowed() {
+
+        def columnMapFile = "column_map_file.txt"
+
+        createTmpFile columnMapFile
+        Path paramsFile = createTmpFile 'clinical.params', """
+            STUDY_ID=test_study_id
+            COLUMN_MAP_FILE=${columnMapFile}
+            XTRIAL_FILE=
+        """
+
+        JobStartupDetails.fromFile(paramsFile)
+    }
+
+
+
     @Test
     void testPlatformJobStartupDetails() {
         def annotationDataFileName = 'empty_annotation_file.tsv'

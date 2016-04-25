@@ -21,7 +21,7 @@ final class StudyJobParametersModule implements ExternalJobParametersModule {
             throws InvalidParametersFileException {
         ejp.mungeBoolean(SECURITY_REQUIRED, false)
 
-        if (!ejp[TOP_NODE]) {
+        if (ejp[TOP_NODE] == null) {
             def prefix = ejp[SECURITY_REQUIRED] == 'Y' ?
                     'Private Studies' :
                     'Public Studies'

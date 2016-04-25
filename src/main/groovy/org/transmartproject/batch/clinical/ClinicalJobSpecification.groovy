@@ -14,6 +14,7 @@ final class ClinicalJobSpecification implements
     public final static String RECORD_EXCLUSION_FILE = 'RECORD_EXCLUSION_FILE'
     public final static String XTRIAL_FILE = 'XTRIAL_FILE'
     public final static String TAGS_FILE = 'TAGS_FILE'
+    public static final String EMPTY_VALUE = 'x'
 
     List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),
@@ -32,6 +33,17 @@ final class ClinicalJobSpecification implements
     void validate(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
         ejp.mandatory COLUMN_MAP_FILE
+
+        def incorectEmptyParameters = [WORD_MAP_FILE,
+         RECORD_EXCLUSION_FILE,
+         XTRIAL_FILE,
+         TAGS_FILE].findAll { ejp[it]?.trim() == '' }
+
+        if (incorectEmptyParameters) {
+            throw new InvalidParametersFileException("Following parameters were provided without value:" +
+                    " ${incorectEmptyParameters.join(',')}. Please use ${EMPTY_VALUE} as empty value or remove " +
+                    "the parameters completely.")
+        }
     }
 
     void munge(ExternalJobParametersInternalInterface ejp)
@@ -42,9 +54,9 @@ final class ClinicalJobSpecification implements
          RECORD_EXCLUSION_FILE,
          XTRIAL_FILE,
          TAGS_FILE].each { p ->
-            if (ejp[p] == 'x') {
+            if (ejp[p] == EMPTY_VALUE) {
                 ejp[p] = null
-            } else {
+            } else if(ejp[p]?.trim() != '') {
                 ejp[p] = ejp.convertRelativePath p
             }
         }
