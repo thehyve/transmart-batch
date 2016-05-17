@@ -2,6 +2,7 @@ package org.transmartproject.batch.browsetag
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.item.file.FlatFileHeaderCallback
 import org.springframework.batch.item.file.FlatFileItemWriter
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator
 import org.springframework.batch.item.file.transform.FieldExtractor
@@ -44,7 +45,12 @@ class BrowseTagTypeFlatFileWriter implements ItemWriter<BrowseTagValue> {
                             type.index
                         ] as Object[]
                     } as FieldExtractor
-                )
+                ),
+                headerCallback: { writer ->
+                    writer.write(
+                            ['node_type', 'title', 'solr_field_name', 'value_type', 'shown_if_empty', 'values', 'index']
+                                    .join('\t'))
+                } as FlatFileHeaderCallback
         )
         delegate.afterPropertiesSet()
     }
