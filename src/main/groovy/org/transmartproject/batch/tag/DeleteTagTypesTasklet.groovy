@@ -24,6 +24,20 @@ class DeleteTagTypesTasklet implements Tasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         def deleteTagTypes = tagTypesJobMetadata.tagTypes.keySet() - tagTypesJobMetadata.writtenTagTypes
+
+        log.debug "Checking if tag types can be safely deleted: ${deleteTagTypes}"
+        def tagTypeOptionsWithReferences = tagTypeService.fetchAllTagTypeOptionsWithReferences()
+        // check if tag types can be safely deleted.
+        deleteTagTypes.each { String title ->
+            def referencedOptions = (tagTypeOptionsWithReferences[title] ?: [:]).keySet()
+            if (!referencedOptions.empty) {
+                throw new InvalidTagTypeOptionsDeleteException(
+                        "Cannot delete tag type '${title}', " +
+                                "because of existing references."
+                )
+            }
+        }
+
         log.debug "Deleting tag types: ${deleteTagTypes}"
         def deleteItems = deleteTagTypes.collect { tagType ->
             tagTypesJobMetadata.tagTypes[tagType]
