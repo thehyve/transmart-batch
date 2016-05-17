@@ -20,7 +20,7 @@ class TagType implements Serializable {
 
     String solrFieldName
 
-    String valueType // DATE, NON-ANALYZED STRING, ANALYZED STRING, INTEGER, FLOAT
+    String valueType // DATE, NON_ANALYZED_STRING, ANALYZED_STRING, INTEGER, FLOAT
 
     Boolean shownIfEmpty
 
