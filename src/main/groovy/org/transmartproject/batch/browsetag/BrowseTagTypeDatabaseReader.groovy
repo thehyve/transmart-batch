@@ -1,10 +1,10 @@
 package org.transmartproject.batch.browsetag
 
 import groovy.util.logging.Slf4j
-import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.database.JdbcCursorItemReader
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.transmartproject.batch.clinical.db.objects.Tables
 
@@ -25,9 +25,12 @@ class BrowseTagTypeDatabaseReader implements ItemStreamReader<BrowseTagType> {
     @Autowired
     DataSource dataSource
 
-    private final Map<String, BrowseFolderType> folderTypes = [:]
+    @Autowired
+    JdbcTemplate jdbcTemplate
 
-    private final Map<Long, BrowseTagType> tagTypes = [:]
+    private final Map<String, BrowseFolderType> folderTypesCache = [:]
+
+    private final Map<Long, BrowseTagType> tagTypesCache = [:]
 
     @PostConstruct
     void init() {
@@ -123,20 +126,20 @@ class BrowseTagTypeDatabaseReader implements ItemStreamReader<BrowseTagType> {
 
     private BrowseFolderType getFolderType(ResultSet rs) {
         String tagTemplateType = rs.getString('tag_template_type')
-        BrowseFolderType folderType = folderTypes[tagTemplateType]
+        BrowseFolderType folderType = folderTypesCache[tagTemplateType]
         if (folderType == null) {
             folderType = new BrowseFolderType(
                     type: tagTemplateType,
                     displayName: rs.getString('tag_template_name')
             )
-            folderTypes[tagTemplateType] = folderType
+            folderTypesCache[tagTemplateType] = folderType
         }
         folderType
     }
 
     private BrowseTagType getTagType(ResultSet rs) {
         Long tagItemId = rs.getLong('tag_item_id')
-        BrowseTagType tagType = tagTypes[tagItemId]
+        BrowseTagType tagType = tagTypesCache[tagItemId]
         if (tagType == null) {
             tagType = new BrowseTagType(
                     id: tagItemId,
@@ -147,7 +150,7 @@ class BrowseTagTypeDatabaseReader implements ItemStreamReader<BrowseTagType> {
                     displayName: rs.getString('display_name'),
                     required: rs.getBoolean('required')
             )
-            tagTypes[tagItemId] = tagType
+            tagTypesCache[tagItemId] = tagType
         }
         tagType
     }
@@ -155,22 +158,11 @@ class BrowseTagTypeDatabaseReader implements ItemStreamReader<BrowseTagType> {
     @SuppressWarnings('UnusedPrivateMethodParameter')
     private BrowseTagType mapRow(ResultSet rs, int rowNum) throws SQLException {
         def tagType = getTagType(rs)
-        JdbcCursorItemReader<String> valueReader = new JdbcCursorItemReader<>(
-                driverSupportsAbsolute: true,
-                dataSource: dataSource,
-                sql: getValuesSql(tagType),
-                rowMapper: { ResultSet valuesRs, int valuesRowNum ->
+        Collection<String> values = jdbcTemplate.query(getValuesSql(tagType),
+                { ResultSet valuesRs, int valuesRowNum ->
                     valuesRs.getString('code_description')
                 } as RowMapper<String>
         )
-        ExecutionContext executionContext = new ExecutionContext()
-        valueReader.open(executionContext)
-        def values = []
-        def value
-        while ((value = valueReader.read()) != null) {
-            values.add(value)
-        }
-        valueReader.close()
         tagType.values = values
         tagType.index = rowNum
         tagType
