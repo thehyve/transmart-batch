@@ -78,6 +78,7 @@ class TagTypesLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScope
     Step tagTypesLoadStep(TagTypeValidator tagTypeValidator) {
         TaskletStep s = steps.get('tagTypesLoadStep')
+                .allowStartIfComplete(true)
                 .chunk(CHUNK_SIZE)
                 .reader(tagTypeReader())
                 .processor(compositeOf(
@@ -100,7 +101,7 @@ class TagTypesLoadJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    @JobScope
+    @JobScopeInterfaced
     ItemStreamReader<TagType> tagTypeReader() {
         tsvFileReader(
                 tagTypesFileResource(),
