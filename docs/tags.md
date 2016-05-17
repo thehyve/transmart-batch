@@ -29,8 +29,10 @@ Order of columns is important.
     TranSMART tries to find user-friendly title by searching using title as key in `messsage.properties` file first.
     It shows title as is if it fails to find it in properties file.
 
-- tag_description - text that appears next to title on popup. e.g. `Homo Sapiens`
+- tag_description - text that appears next to title on popup. e.g. `Homo Sapiens`.
+
 - index - detects position of tags on popup relatively to others. A higher position in tags with lower number.
+    Mandatory for tags that have no reference to a tag type (in the i2b2metadata.i2b2_tag_types table).
 
 #####Tags upload.
 
