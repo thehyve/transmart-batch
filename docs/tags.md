@@ -7,8 +7,6 @@ Parameters
 ------------
 The parameters file should be named `tags.params` and contains:
 - `TAGS_FILE` **Mandatory**. Points to the tags file. See below for format.
-For tag types, the parameters file should be named `tagtypes.params` and contains:
-- `TAG_TYPES_FILE` **Mandatory**. Points to the tag types file. See below for format.
 
 #####Tags tsv input file format.
 
@@ -33,17 +31,6 @@ Order of columns is important.
 
 - tag_description - text that appears next to title on popup. e.g. `Homo Sapiens`
 - index - detects position of tags on popup relatively to others. A higher position in tags with lower number.
-
-#####Tag types tsv input file format.
-
-|node_type|tag_title  |solr_field_name|tag_type       |shown_if_empty|possible_tag_descriptions|index|
-|---------|-----------|---------------|---------------|--------------|-------------------------|-----|
-|STUDY    |ORGANISM   |ORGANISM       |ANALYZED_STRING|Y             |Homo sapiens             |1    |
-|STUDY    |STUDY_PHASE|STUDY_PHASE    |ANALYZED_STRING|N             |Phase 0,Phase I          |2    |
-
-Columns map onto these db columns of i2b2metadata.i2b2_tag_types table:
-node_type=concept_type, tag_title=tag_type, tag_description_type=tag_value_type index=tags_idx
-possible_tag_descriptions are stored in i2b2metadata.i2b2_tag_type_values.
 
 #####Tags upload.
 
