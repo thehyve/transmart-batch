@@ -5,6 +5,7 @@
   * [study-params.md](study-params.md) - Parameters that are supported for all data types.
 * Metadata
   * [tags.md](tags.md) - Loading study, concept, patient metadata and links to source data per concept.
+  * [tagtypes.md](tagtypes.md) - Loading tag types for validation of metadata tags.
 
 ## Low-dimensional data
 * Clinical data
