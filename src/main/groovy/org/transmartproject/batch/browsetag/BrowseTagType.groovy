@@ -11,7 +11,7 @@ import groovy.transform.ToString
  * of the tag types.
  */
 @ToString
-@EqualsAndHashCode(includes = ['id', 'code', 'type', 'subType', 'folderType'])
+@EqualsAndHashCode(includes = ['id', 'code', 'folderType'])
 class BrowseTagType implements Serializable {
 
     private static final long serialVersionUID = 1L
@@ -23,21 +23,6 @@ class BrowseTagType implements Serializable {
     String displayName
 
     BrowseFolderType folderType
-
-    Boolean required
-
-    /**
-     * E.g., 'FIXED', 'CUSTOM'.
-     * Also, 'PROGRAM_TARGET', 'BIO_ASSAY_PLATFORM', 'BIO_DISEASE', 'BIO_MARKER'.
-     * 'BIO_ASSAY_ANALYSIS', 'BIO_CONCEPT_CODE', 'BIO_EXPERIMENT', 'BIO_MARKER.GENE', 'BIO_ASSAY_PLATFORM'?
-     * <code>select distinct(bio_data_type) from biomart.bio_data_uid;</code>
-     */
-    String type
-
-    /**
-     * E.g., 'FREETEXT', 'FREETEXTAREA', 'PICKLIST', 'MULTIPICKLIST'
-     */
-    String subType
 
     /**
      * These reside in BIOMART.BIO_CONCEPT_CODE mainly...

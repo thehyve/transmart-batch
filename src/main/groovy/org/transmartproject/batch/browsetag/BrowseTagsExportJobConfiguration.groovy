@@ -4,7 +4,6 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
-import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.file.FlatFileHeaderCallback
 import org.springframework.batch.item.file.FlatFileItemWriter
@@ -105,7 +104,7 @@ class BrowseTagsExportJobConfiguration extends AbstractJobConfiguration {
                             ['\\',
                              item.value.type.displayName,
                              item.value.description,
-                             0
+                             item.index
                             ] as Object[]
                         } as FieldExtractor,
                 ),

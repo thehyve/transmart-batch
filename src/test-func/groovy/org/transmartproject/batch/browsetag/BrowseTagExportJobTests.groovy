@@ -82,7 +82,7 @@ class BrowseTagExportJobTests {
                         'Hit finding',
                         'Target identification / validation'
                 ].sort().join(','),
-                '9'
+                '10'
         ].join('\t')
         assertThat readExportedTagTypes(), hasItems(
             expected

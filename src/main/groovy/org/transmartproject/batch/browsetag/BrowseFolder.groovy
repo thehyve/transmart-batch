@@ -7,13 +7,10 @@ import groovy.transform.ToString
  *
  */
 @ToString
-@EqualsAndHashCode(includes = ['id', 'level', 'name', 'type', 'parent'])
+@EqualsAndHashCode(includes = ['id', 'name', 'fullName'])
 class BrowseFolder {
     BrowseFolderType type
     Long id
-    Integer level
     String name
     String fullName
-    String description
-    String parent
 }

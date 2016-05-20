@@ -39,6 +39,7 @@ final class Tables {
     public static final String SECURE_OBJECT            = 'searchapp.search_secure_object'
     public static final String SEARCH_AUTH_SEC_OBJ_ACC  = 'searchapp.search_auth_sec_object_access'
     public static final String BIO_DATA_UID             = 'biomart.bio_data_uid'
+    public static final String BIO_DISEASE              = 'biomart.bio_disease'
 
     public static final String GPL_INFO                 = 'deapp.de_gpl_info'
     public static final String SUBJ_SAMPLE_MAP          = 'deapp.de_subject_sample_mapping'

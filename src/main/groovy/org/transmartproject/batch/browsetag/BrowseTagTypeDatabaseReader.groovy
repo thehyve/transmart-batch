@@ -59,24 +59,30 @@ class BrowseTagTypeDatabaseReader implements ItemStreamReader<BrowseTagType> {
          */
 
         """
-                SELECT DISTINCT
-                    bcc.code_type_name,
-                    ati.tag_template_id,
+                (SELECT DISTINCT
                     ati.tag_item_id,
-                    ati.tag_item_uid,
-                    ati.display_name,
-                    ati.tag_item_type,
-                    ati.tag_item_subtype,
-                    ati.code_type_name,
-                    ati.required,
+                    ati.display_name as display_name,
+                    ati.code_type_name as code,
                     att.tag_template_name,
-                    att.tag_template_type,
-                    att.tag_template_subtype
+                    att.tag_template_type
                 FROM $Tables.BIO_CONCEPT_CODE bcc
                 INNER JOIN $Tables.AM_TAG_ITEM ati
                 ON bcc.code_type_name = ati.code_type_name
                 INNER JOIN $Tables.AM_TAG_TEMPLATE att
                 ON ati.tag_template_id = att.tag_template_id
+                )
+                UNION
+                (SELECT DISTINCT
+                    ati.tag_item_id,
+                    ati.display_name as display_name,
+                    ati.code_type_name as code,
+                    att.tag_template_name,
+                    att.tag_template_type
+                FROM $Tables.AM_TAG_ITEM ati
+                INNER JOIN $Tables.AM_TAG_TEMPLATE att
+                ON ati.tag_template_id = att.tag_template_id
+                WHERE ati.tag_item_type = 'BIO_DISEASE'
+                )
                 ORDER BY display_name ASC
         """
     }
@@ -96,31 +102,35 @@ class BrowseTagTypeDatabaseReader implements ItemStreamReader<BrowseTagType> {
             primary key: (tag_template_id, tag_item_id)
          */
         """
-                SELECT
-                    bcc.bio_concept_code_id,
-                    bcc.bio_concept_code,
-                    bcc.code_name,
-                    bcc.code_description,
-                    bcc.code_type_name,
-                    bcc.filter_flag,
-                    ati.tag_template_id,
-                    ati.tag_item_id,
-                    ati.tag_item_uid,
-                    ati.display_name,
-                    ati.tag_item_type,
-                    ati.tag_item_subtype,
-                    ati.code_type_name,
-                    ati.required,
+                (SELECT
+                    bcc.code_description as description,
+                    ati.display_name as display_name,
+                    ati.code_type_name as code,
                     att.tag_template_name,
-                    att.tag_template_type,
-                    att.tag_template_subtype
+                    att.tag_template_type
                 FROM $Tables.BIO_CONCEPT_CODE bcc
                 INNER JOIN $Tables.AM_TAG_ITEM ati
                 ON bcc.code_type_name = ati.code_type_name
                 INNER JOIN $Tables.AM_TAG_TEMPLATE att
                 ON ati.tag_template_id = att.tag_template_id
                 WHERE ati.tag_item_id = $tagType.id
-                ORDER BY bcc.code_description ASC
+                AND NOT ati.tag_item_type = 'BIO_DISEASE'
+                )
+                UNION
+                (SELECT
+                    bd.disease as description,
+                    ati.display_name as display_name,
+                    ati.code_type_name as code,
+                    att.tag_template_name,
+                    att.tag_template_type
+                FROM $Tables.AM_TAG_ITEM ati
+                INNER JOIN $Tables.AM_TAG_TEMPLATE att
+                ON ati.tag_template_id = att.tag_template_id
+                CROSS JOIN $Tables.BIO_DISEASE bd
+                WHERE ati.tag_item_id = $tagType.id
+                AND ati.tag_item_type = 'BIO_DISEASE'
+                )
+                ORDER BY description ASC
         """
     }
 
@@ -143,12 +153,9 @@ class BrowseTagTypeDatabaseReader implements ItemStreamReader<BrowseTagType> {
         if (tagType == null) {
             tagType = new BrowseTagType(
                     id: tagItemId,
-                    code: rs.getString('code_type_name'),
+                    code: rs.getString('code'),
                     folderType: getFolderType(rs),
-                    type: rs.getString('tag_item_type'),
-                    subType: rs.getString('tag_item_subtype'),
                     displayName: rs.getString('display_name'),
-                    required: rs.getBoolean('required')
             )
             tagTypesCache[tagItemId] = tagType
         }
@@ -160,7 +167,7 @@ class BrowseTagTypeDatabaseReader implements ItemStreamReader<BrowseTagType> {
         def tagType = getTagType(rs)
         Collection<String> values = jdbcTemplate.query(getValuesSql(tagType),
                 { ResultSet valuesRs, int valuesRowNum ->
-                    valuesRs.getString('code_description')
+                    valuesRs.getString('description')
                 } as RowMapper<String>
         )
         tagType.values = values

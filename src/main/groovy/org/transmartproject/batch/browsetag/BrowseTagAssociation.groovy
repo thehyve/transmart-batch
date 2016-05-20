@@ -12,5 +12,6 @@ class BrowseTagAssociation {
 
     BrowseFolder folder
     BrowseTagValue value
+    Integer index
 
 }
