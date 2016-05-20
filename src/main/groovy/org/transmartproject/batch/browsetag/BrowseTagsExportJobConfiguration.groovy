@@ -54,7 +54,7 @@ class BrowseTagsExportJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    @StepScope
+    @JobScope
     BrowseTagTypeDatabaseReader browseTagTypeReader() {
         new BrowseTagTypeDatabaseReader()
     }

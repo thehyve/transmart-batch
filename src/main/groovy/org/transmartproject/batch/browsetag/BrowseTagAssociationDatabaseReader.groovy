@@ -4,11 +4,17 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.database.JdbcCursorItemReader
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.PreparedStatementSetter
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.transmartproject.batch.clinical.db.objects.Tables
+import org.transmartproject.batch.concept.ConceptPath
 
 import javax.annotation.PostConstruct
 import javax.sql.DataSource
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 
@@ -17,6 +23,12 @@ import java.sql.SQLException
  */
 @Slf4j
 class BrowseTagAssociationDatabaseReader implements ItemStreamReader<BrowseTagAssociation> {
+
+    @Value("#{jobParameters['STUDY_ID']}")
+    String studyId
+
+    @Autowired
+    NamedParameterJdbcTemplate jdbcTemplate
 
     @Delegate
     JdbcCursorItemReader<BrowseTagAssociation> delegate
@@ -30,9 +42,16 @@ class BrowseTagAssociationDatabaseReader implements ItemStreamReader<BrowseTagAs
                 driverSupportsAbsolute: true,
                 dataSource: dataSource,
                 sql: sql,
+                preparedStatementSetter: this.&setStudyId as PreparedStatementSetter,
                 rowMapper: this.&mapRow as RowMapper<BrowseTagAssociation>)
 
         delegate.afterPropertiesSet()
+    }
+
+    void setStudyId(PreparedStatement ps) throws SQLException {
+        log.info "Study ID: ${studyId}"
+        ps.setString(1, studyId)
+        ps.setString(2, studyId)
     }
 
     private String getSql() {
@@ -82,7 +101,10 @@ class BrowseTagAssociationDatabaseReader implements ItemStreamReader<BrowseTagAs
                 ON tuid.am_data_id = tv.tag_value_id
                 LEFT OUTER JOIN $Tables.FM_FOLDER fp
                 ON f.parent_id = fp.folder_id
-                WHERE ata.object_type = 'AM_TAG_VALUE')
+                WHERE ata.object_type = 'AM_TAG_VALUE'
+                AND f.folder_type = 'STUDY'
+                AND UPPER(f.folder_name) = ?
+                )
                 UNION
                 (SELECT
                     f.folder_id,
@@ -117,7 +139,10 @@ class BrowseTagAssociationDatabaseReader implements ItemStreamReader<BrowseTagAs
                 ON ata.object_uid = concat(bcc.code_type_name, concat(':', bcc.bio_concept_code))
                 LEFT OUTER JOIN $Tables.FM_FOLDER fp
                 ON f.parent_id = fp.folder_id
-                WHERE ata.object_type = 'BIO_CONCEPT_CODE')
+                WHERE ata.object_type = 'BIO_CONCEPT_CODE'
+                AND f.folder_type = 'STUDY'
+                AND UPPER(f.folder_name) = ?
+                )
         """
     }
 

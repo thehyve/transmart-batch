@@ -14,7 +14,10 @@ final class BrowseTagsExportJobSpecification
     public final static String EXPORT_BROWSE_TAG_TYPES_FILE = 'EXPORT_BROWSE_TAG_TYPES_FILE'
     public final static String EXPORT_BROWSE_TAGS_FILE = 'EXPORT_BROWSE_TAGS_FILE'
 
-    final List<? extends ExternalJobParametersModule> jobParametersModules = [this]
+    final List<? extends ExternalJobParametersModule> jobParametersModules = [
+            new StudyJobParametersModule(),
+            this
+    ]
 
     final Class jobPath = BrowseTagsExportJobConfiguration
 
