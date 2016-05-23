@@ -48,6 +48,28 @@ trait ExternalJobParametersModule {
         file
     }
 
+    /** 
+     * Reads a parameter with a relative path value and turns it into an
+     * absolute path.
+     * Fails if the file already exists.
+     */
+    static Path convertRelativeWritePath(ExternalJobParametersInternalInterface ejp, String parameter) {
+        def fileName = ejp[parameter]
+        if (fileName == null) {
+            return
+        }
+
+        def absolutePath = ejp.filePath.toAbsolutePath()
+        def dir = absolutePath.parent.resolve(ejp.typeName)
+        def file = dir.resolve(fileName)
+        if (Files.exists(file)) {
+            throw new InvalidParametersFileException(
+                    "Parameter ${parameter} references ${fileName}, but " +
+                            "${file} already exists")
+        }
+        file
+    }
+
     /**
      * Throws if the parameter is not present.
      */

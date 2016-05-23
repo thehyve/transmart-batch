@@ -8,6 +8,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.JobParameter
 import org.springframework.batch.core.JobParameters
 import org.transmartproject.batch.backout.BackoutJobSpecification
+import org.transmartproject.batch.browsetag.BrowseTagsExportJobSpecification
 import org.transmartproject.batch.clinical.ClinicalJobSpecification
 import org.transmartproject.batch.gwas.GwasJobSpecification
 import org.transmartproject.batch.highdim.cnv.data.CnvDataJobSpecification
@@ -61,6 +62,7 @@ final class JobStartupDetails {
             'cnv'                    : CnvDataJobSpecification,
             'mirna_annotation'       : MirnaAnnotationJobSpecification,
             'mirna'                  : MirnaDataJobSpecification,
+            'browsetagsexport'       : BrowseTagsExportJobSpecification,
     ]
     public static final String STUDY_PARAMS_FILE_NAME = 'study' + PARAMS_FILE_EXTENSION
     public static final String PARAMS_FILE_EXTENSION = '.params'

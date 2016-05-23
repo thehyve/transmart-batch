@@ -39,6 +39,7 @@ final class Tables {
     public static final String SECURE_OBJECT            = 'searchapp.search_secure_object'
     public static final String SEARCH_AUTH_SEC_OBJ_ACC  = 'searchapp.search_auth_sec_object_access'
     public static final String BIO_DATA_UID             = 'biomart.bio_data_uid'
+    public static final String BIO_DISEASE              = 'biomart.bio_disease'
 
     public static final String GPL_INFO                 = 'deapp.de_gpl_info'
     public static final String SUBJ_SAMPLE_MAP          = 'deapp.de_subject_sample_mapping'
@@ -69,5 +70,15 @@ final class Tables {
 
     public static final String MIRNA_ANNOTATION         = 'deapp.de_qpcr_mirna_annotation'
     public static final String MIRNA_DATA               = 'deapp.de_subject_mirna_data'
+
+    public static final String AM_TAG_ITEM              = 'amapp.am_tag_item'
+    public static final String AM_TAG_ASSOCIATION       = 'amapp.am_tag_association'
+    public static final String AM_TAG_VALUE             = 'amapp.am_tag_value'
+    public static final String AM_DATA_UID              = 'amapp.am_data_uid'
+    public static final String AM_TAG_TEMPLATE          = 'amapp.am_tag_template'
+    public static final String BIO_CONCEPT_CODE         = 'biomart.bio_concept_code'
+    public static final String FM_FOLDER                = 'fmapp.fm_folder'
+    public static final String FM_FOLDER_ASSOCIATION    = 'fmapp.fm_folder_association'
+    public static final String FM_DATA_UID              = 'fmapp.fm_data_uid'
 
 }
