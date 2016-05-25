@@ -42,7 +42,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
             new RunJobRule(STUDY_ID, 'expression'),
-            new RunJobRule(PLATFORM_ID, 'annotation'),
+            new RunJobRule(PLATFORM_ID, 'mrna_annotation'),
             new RunJobRule("${STUDY_ID}_simple", 'clinical'),
     ])
 
@@ -100,7 +100,7 @@ class MrnaDataCleanScenarioTests implements JobRunningTestTrait {
 
         assertThat r, allOf(
                 hasEntry('pd_sourcesystem_cd', "$STUDY_ID:$subjectId" as String),
-                hasEntry('cd_concept_path', '\\Public Studies\\GSE8581\\Biomarker_Data\\GPL570_BOGUS\\Lung\\'),
+                hasEntry('cd_concept_path', '\\Public Studies\\GSE8581\\Biomarker Data\\GPL570_BOGUS\\Lung\\'),
                 hasEntry(is('assay_id'), isA(Number)),
                 hasEntry('sample_type', 'Human'),
                 hasEntry('trial_name', STUDY_ID),

@@ -16,14 +16,16 @@ class Tag implements Serializable {
     ConceptFragment conceptFragment
 
     void setConceptFragment(String conceptFragment) {
-        this.conceptFragment = new ConceptFragment(conceptFragment)
+        this.conceptFragment = ConceptFragment.decode(conceptFragment)
     }
 
     String tagTitle
 
     String tagDescription
 
-    int index
+    Integer index
+
+    Integer tagOptionId
 
 }
 

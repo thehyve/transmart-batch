@@ -63,13 +63,12 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
     }
 
     @Bean
-    Step secondPass(
-            ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfHdSecondPassProcessors) {
+    Step secondPass() {
         TaskletStep step = steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
                 .reader(secondPassReader())
                 .writer(dataWriter)
-                .processor(compositeOfHdSecondPassProcessors)
+                .processor(patientInjectionProcessor())
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()
@@ -80,17 +79,33 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
 
     @Bean
     @JobScopeInterfaced
-    ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfHdSecondPassProcessors(
-            @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData) {
+    ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfEarlyItemProcessors(
+            @Value("#{jobParameters['SKIP_UNMAPPED_DATA']}") String skipUnmappedData,
+            @Value("#{jobParameters['ZERO_MEANS_NO_INFO']}") String zeroMeansNoInfo,
+            @Value("#{jobParameters['DATA_TYPE']}") String dataType) {
         def processors = [
-                new FilterNaNsItemProcessor()
+                new FilterNaNsItemProcessor(),
         ]
         if (skipUnmappedData == 'Y') {
             processors << filterDataWithoutAssayMappingsItemProcessor()
         }
-        processors << patientInjectionProcessor()
-
+        if (dataType == 'L') {
+            processors << calculateRawValueFromTheLogItemProcessor()
+        } else if (dataType == 'R') {
+            processors << new FilterNegativeValuesItemProcessor()
+            if (zeroMeansNoInfo == 'Y') {
+                processors << new FilterZerosItemProcessor()
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported DATA_TYPE=${dataType}.")
+        }
         compositeOf(*processors)
+    }
+
+    @Bean
+    @JobScope
+    CalculateRawValueFromTheLogItemProcessor calculateRawValueFromTheLogItemProcessor() {
+        new CalculateRawValueFromTheLogItemProcessor()
     }
 
     @Bean
@@ -117,10 +132,20 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
 
     @Bean
     @StepScope
-    StandardDataRowSplitterReader firstPassDataRowSplitterReader() {
-        new StandardDataRowSplitterReader(
+    StandardDataRowSplitterReader firstPassDataRowSplitterReader(
+            @Value("#{jobParameters['DATA_TYPE']}") String dataType
+    ) {
+        StandardDataRowSplitterReader reader = new StandardDataRowSplitterReader(
                 delegate: visitedProbesValidatingReader(),
                 dataPointClass: TripleStandardDataValue)
+
+        if (dataType == 'L') {
+            reader.earlyItemProcessor = calculateRawValueFromTheLogItemProcessor()
+        } else if (dataType != 'R') {
+            throw new IllegalArgumentException("Unsupported DATA_TYPE=${dataType}.")
+        }
+
+        reader
     }
 
     @Bean
@@ -160,11 +185,13 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
 
     @Bean
     @StepScope
-    StandardDataRowSplitterReader secondPassDataRowSplitterReader() {
+    StandardDataRowSplitterReader secondPassDataRowSplitterReader(
+            ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfEarlyItemProcessors) {
         new StandardDataRowSplitterReader(
                 delegate: secondPassTsvFileReader(),
                 dataPointClass: TripleStandardDataValue,
-                eagerLineListener: perDataRowLog2StatisticsListener())
+                eagerLineListener: perDataRowLog2StatisticsListener(),
+                earlyItemProcessor: compositeOfEarlyItemProcessors)
     }
 
     @Bean

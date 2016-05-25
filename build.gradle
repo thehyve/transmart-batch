@@ -47,6 +47,7 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: GUAVA_VERSION
     compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
     compile group: 'org.hibernate', name: 'hibernate-validator', version: HIBERNATE_VALIDATOR_VERSION
+    compile group: 'com.opencsv', name: 'opencsv', version: '3.7'
 
     compile group: 'ch.qos.logback', name: 'logback-classic', version: LOGBACK_VERSION
     compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: SLF4J_VERSION

@@ -5,6 +5,7 @@
   * [study-params.md](study-params.md) - Parameters that are supported for all data types.
 * Metadata
   * [tags.md](tags.md) - Loading study, concept, patient metadata and links to source data per concept.
+  * [tagtypes.md](tagtypes.md) - Loading tag types for validation of metadata tags.
 
 ## Low-dimensional data
 * Clinical data
@@ -22,7 +23,7 @@
   * [expression.md](expression.md) - Loading microarray gene expression data.
   * *under development* - Loading readcounts and normalized readcounts data for mRNAseq and miRNAseq.
 * Copy Number Variation data
-  * *under development* - Loading CNV data from Array CGH (comparative genomic hybridisation), SNP Array, DNA-Seq, etc.
+  * [cnv.md](cnv.md) - Loading CNV data from Array CGH (comparative genomic hybridisation), SNP Array, DNA-Seq, etc.
 * Small Genomic Variants
   * *not yet implemented* - Loading small genomic variants (SNP, indel in VCF format) from RNAseq or DNAseq.
 * Proteomics data

@@ -28,6 +28,10 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
     // to be configured
     protected ItemStreamReader<FieldSet> delegate // should not be registered as stream
     EagerLineListener<T> eagerLineListener
+    /**
+     * Filtering happens before the line listener {@link this.eagerLineListener} is called.
+     */
+    ItemProcessor<T, T> earlyItemProcessor
 
     private final static String SAVED_FIELD_SET_KEY = 'savedFieldSet'
     private final static String SAVED_POSITION = 'position'
@@ -50,17 +54,24 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
             wrappedDelegateLineFetch()
 
             cachedValues = [] as Queue
+            boolean sawData = false
             while (!needsDelegateFetch()) {
                 def value = uncachedRead()
                 if (value != null) {
-                    cachedValues << value
+                    sawData = true
+                    if (earlyItemProcessor) {
+                        value = earlyItemProcessor.process(value)
+                    }
+                    if (value != null) {
+                        cachedValues << value
+                    }
                 } else {
                     // we'll break out next:
                     assert needsDelegateFetch()
                 }
             }
 
-            if (!cachedValues) {
+            if (!cachedValues && !sawData) {
                 return null
             }
 
@@ -71,6 +82,11 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
                         "${upstreamPos}-th line gotten from delegate, " +
                         "fieldset '$currentFieldSet', items '$cachedValues'", e
                 throw e
+            }
+
+            if (!cachedValues /* && sawData */) {
+                // we filtered out the whole line
+                return cachedRead()
             }
         }
 
@@ -189,6 +205,14 @@ abstract class AbstractSplittingItemReader<T> extends ItemStreamSupport implemen
     }
 
     static interface EagerLineListener<T> extends ItemStream {
-        void onLine(FieldSet fieldSet, Collection<T> items)
+        /**
+         * @param fieldSet - parsed row
+         * @param keptItems - items that remained after filtering with {@link this.earlyItemFilter}
+         */
+        void onLine(FieldSet fieldSet, Collection<T> keptItems)
+    }
+
+    static interface EarlyItemFilter<T> {
+        boolean keepItem(T item)
     }
 }

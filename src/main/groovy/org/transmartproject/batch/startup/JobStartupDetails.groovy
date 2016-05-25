@@ -8,13 +8,17 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.JobParameter
 import org.springframework.batch.core.JobParameters
 import org.transmartproject.batch.backout.BackoutJobSpecification
+import org.transmartproject.batch.browsetag.BrowseTagsExportJobSpecification
 import org.transmartproject.batch.clinical.ClinicalJobSpecification
 import org.transmartproject.batch.gwas.GwasJobSpecification
-import org.transmartproject.batch.highdim.acgh.data.AcghDataJobSpecification
-import org.transmartproject.batch.highdim.acgh.platform.AcghAnnotationJobSpecification
+import org.transmartproject.batch.highdim.cnv.data.CnvDataJobSpecification
+import org.transmartproject.batch.highdim.cnv.platform.CnvAnnotationJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
+import org.transmartproject.batch.highdim.mirna.data.MirnaDataJobSpecification
+import org.transmartproject.batch.highdim.mirna.platform.MirnaAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobSpecification
+import org.transmartproject.batch.highdim.mrna.platform.AnnotationJobSpecification
 import org.transmartproject.batch.highdim.mrna.platform.MrnaAnnotationJobSpecification
 import org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataJobSpecification
 import org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationJobSpecification
@@ -22,6 +26,7 @@ import org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataJobSpecification
 import org.transmartproject.batch.highdim.rnaseq.platform.RnaSeqAnnotationJobSpecification
 import org.transmartproject.batch.i2b2.I2b2JobSpecification
 import org.transmartproject.batch.support.StringUtils
+import org.transmartproject.batch.tag.TagTypesLoadJobSpecification
 import org.transmartproject.batch.tag.TagsLoadJobSpecification
 
 import java.nio.file.Files
@@ -36,8 +41,13 @@ final class JobStartupDetails {
 
     private final static Map<String, Class<? extends JobSpecification>> DATA_TYPE_TO_JOB_SPEC = [
             'clinical'               : ClinicalJobSpecification,
-            'annotation'             : MrnaAnnotationJobSpecification,
+            //Legacy. Deprecated. Use mrna_annotation instead
+            'annotation'             : AnnotationJobSpecification,
+            //New name for mrna platform. Unlike old platform data file, new file contains a header.
+            //That's why we need ne specification class.
+            'mrna_annotation'        : MrnaAnnotationJobSpecification,
             'tags'                   : TagsLoadJobSpecification,
+            'tagtypes'               : TagTypesLoadJobSpecification,
             'expression'             : MrnaDataJobSpecification,
             'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,
             'metabolomics'           : MetabolomicsDataJobSpecification,
@@ -48,13 +58,16 @@ final class JobStartupDetails {
             'backout'                : BackoutJobSpecification,
             'rnaseq_annotation'      : RnaSeqAnnotationJobSpecification,
             'rnaseq'                 : RnaSeqDataJobSpecification,
-            'acgh_annotation'        : AcghAnnotationJobSpecification,
-            'acgh'                   : AcghDataJobSpecification,
+            'cnv_annotation'         : CnvAnnotationJobSpecification,
+            'cnv'                    : CnvDataJobSpecification,
+            'mirna_annotation'       : MirnaAnnotationJobSpecification,
+            'mirna'                  : MirnaDataJobSpecification,
+            'browsetagsexport'       : BrowseTagsExportJobSpecification,
     ]
     public static final String STUDY_PARAMS_FILE_NAME = 'study' + PARAMS_FILE_EXTENSION
     public static final String PARAMS_FILE_EXTENSION = '.params'
 
-    private final Map<String, String> params = Maps.newHashMap()
+    private Map<String, String> params
 
     private Path dataTypeParamsFilePath
 
@@ -80,12 +93,23 @@ final class JobStartupDetails {
         JobSpecification spec = getJobSpecificationByDataType(dataType)
 
         JobStartupDetails instance = new JobStartupDetails()
-        instance.dataTypeParamsFilePath = filePath
-        instance.typeName = dataType
-        instance.modules = spec.jobParametersModules
-        instance.fileParameterKeys = getFileParameterKeys(spec)
-        instance.jobPath = spec.jobPath
+        instance.with {
+            dataTypeParamsFilePath = filePath
+            typeName = dataType
+            modules = spec.jobParametersModules
+            fileParameterKeys = getFileParameterKeys(spec)
+            jobPath = spec.jobPath
+            params = loadParams(filePath, overrides, spec)
 
+            munge()
+        }
+
+        instance
+    }
+
+    private static Map<String, String> loadParams(
+            Path filePath, Map<String, String> overrides, JobSpecification spec) {
+        Map<String, String> params = Maps.newHashMap()
         Map<String, String> dataTypeParams = parseContent(filePath)
         if (isStudyRelatedSpecification(spec)) {
             Path studyParamsFilePath = findStudyFilePath(filePath)
@@ -98,17 +122,12 @@ final class JobStartupDetails {
                                         " ${studyParams[item.value]} -> ${item.value}")
                     }
                 }
-                instance.params << studyParams
+                params << studyParams
             }
         }
-        instance.params << dataTypeParams
-        instance.params << overrides
-
-        instance.munge()
-        instance.validate()
-        instance.checkForExtraParameters()
-
-        instance
+        params << dataTypeParams
+        params << overrides
+        params
     }
 
     private static Set<String> getFileParameterKeys(JobSpecification spec) {
@@ -184,18 +203,29 @@ final class JobStartupDetails {
     }
 
     @TypeChecked(TypeCheckingMode.SKIP)
-    @SuppressWarnings('UnusedPrivateMethod')
+    private void munge() throws InvalidParametersFileException {
+        checkForEmptyValues()
+
+        modules.each { it.munge(internalInterface) }
+
+        validate()
+        checkForExtraParameters()
+    }
+
+    private void checkForEmptyValues() throws InvalidParametersFileException {
+        def emptyValueParams = params.findAll { !it.value }
+        if (emptyValueParams) {
+            throw new InvalidParametersFileException("Following parameters are specified without a value: " +
+                    emptyValueParams.keySet().join(', ') +
+                    " Please provide a value or remove parameter.")
+        }
+    }
+
+    @TypeChecked(TypeCheckingMode.SKIP)
     private void validate() throws InvalidParametersFileException {
         modules.each { it.validate(internalInterface) }
     }
 
-    @TypeChecked(TypeCheckingMode.SKIP)
-    @SuppressWarnings('UnusedPrivateMethod')
-    private void munge() throws InvalidParametersFileException {
-        modules.each { it.munge(internalInterface) }
-    }
-
-    @SuppressWarnings('UnusedPrivateMethod')
     private void checkForExtraParameters() throws InvalidParametersFileException {
         params.keySet().each { String paramName ->
             if (!fileParameterKeys.contains(paramName)) {
@@ -236,47 +266,6 @@ final class JobStartupDetails {
 
             String getTypeName() {
                 JobStartupDetails.this.typeName
-            }
-
-            Path convertRelativePath(String parameter) {
-                def fileName = this[parameter]
-                if (fileName == null) {
-                    return
-                }
-
-                Path parent = filePath.toAbsolutePath().parent
-                def file = parent.resolve(fileName)
-                if (!Files.isRegularFile(file) || !Files.isReadable(file)) {
-                    log.warn("There is no ${file} file found." +
-                            " Trying to find the file in ${typeName} folder next to the properties file.")
-                    file = parent.resolve(typeName).resolve(fileName)
-                }
-
-                if (!Files.isRegularFile(file) ||
-                        !Files.isReadable(file)) {
-                    throw new InvalidParametersFileException(
-                            "Parameter $parameter references $fileName, but " +
-                                    "$file is not regular readable file")
-                }
-
-                file
-            }
-
-            void mandatory(String parameter) throws InvalidParametersFileException {
-                if (this[parameter] == null) {
-                    throw new InvalidParametersFileException(
-                            "Parameter $parameter mandatory but not defined")
-                }
-            }
-
-            void mungeBoolean(String parameter, boolean defaultValue) {
-                if (this[parameter] == null) {
-                    this[parameter] = defaultValue ? 'Y' : 'N'
-                } else if (this[parameter] in ['0', 'false', 'N']) {
-                    this[parameter] = 'N'
-                } else {
-                    this[parameter] = 'Y'
-                }
             }
         }
     }

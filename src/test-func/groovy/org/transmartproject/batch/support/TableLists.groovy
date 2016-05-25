@@ -18,6 +18,8 @@ class TableLists {
             Tables.PATIENT_DIMENSION,
             Tables.TABLE_ACCESS,
             Tables.I2B2_TAGS,
+            Tables.I2B2_TAG_TYPES,
+            Tables.I2B2_TAG_OPTIONS,
             Tables.I2B2_SECURE,
             Tables.I2B2,
             Tables.SECURE_OBJECT,
@@ -74,10 +76,18 @@ class TableLists {
             Tables.CHROMOSOMAL_REGION,
     ]
 
-    public static final List<String> ACGH_TABLES = [
+    public static final List<String> CNV_TABLES = [
             Tables.GPL_INFO,
             Tables.SUBJ_SAMPLE_MAP,
-            Tables.ACGH_DATA,
+            Tables.CNV_DATA,
             Tables.CHROMOSOMAL_REGION,
     ]
+
+    public static final List<String> MIRNA_TABLES = [
+            Tables.GPL_INFO,
+            Tables.SUBJ_SAMPLE_MAP,
+            Tables.MIRNA_DATA,
+            Tables.MIRNA_ANNOTATION,
+    ]
+
 }

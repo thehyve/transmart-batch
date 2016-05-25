@@ -75,6 +75,12 @@ class TagsLoadJobTests implements JobRunningTestTrait {
                         hasEntry('tag_type', 'SYNONYMS'),
                         hasEntry(is('tags_idx'), isIntegerNumber(5)),
                 ),
+                allOf(
+                        hasEntry('path', '\\Public Studies\\GSE8581\\'),
+                        hasEntry('tag', 'Text with tab characters (\t), and\nnew lines.'),
+                        hasEntry('tag_type', 'FREE TEXT'),
+                        hasEntry(is('tags_idx'), isIntegerNumber(6)),
+                ),
         )
 
         def runJob = RunJob.createInstance(
@@ -111,6 +117,12 @@ class TagsLoadJobTests implements JobRunningTestTrait {
                         hasEntry('tag', 'Tiffeneau-Pinelli'),
                         hasEntry('tag_type', 'SYNONYMS'),
                         hasEntry(is('tags_idx'), isIntegerNumber(5)),
+                ),
+                allOf(
+                        hasEntry('path', '\\Public Studies\\GSE8581\\'),
+                        hasEntry('tag', 'Text with tab characters (\t), and\nnew lines.'),
+                        hasEntry('tag_type', 'FREE TEXT'),
+                        hasEntry(is('tags_idx'), isIntegerNumber(6)),
                 ),
         )
     }

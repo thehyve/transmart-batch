@@ -31,12 +31,12 @@ final class ClinicalJobSpecification implements
 
     void validate(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
-        ejp.mandatory COLUMN_MAP_FILE
+        mandatory ejp, COLUMN_MAP_FILE
     }
 
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
-        ejp[COLUMN_MAP_FILE] = ejp.convertRelativePath COLUMN_MAP_FILE
+        ejp[COLUMN_MAP_FILE] = convertRelativePath ejp, COLUMN_MAP_FILE
 
         [WORD_MAP_FILE,
          RECORD_EXCLUSION_FILE,
@@ -44,8 +44,8 @@ final class ClinicalJobSpecification implements
          TAGS_FILE].each { p ->
             if (ejp[p] == 'x') {
                 ejp[p] = null
-            } else {
-                ejp[p] = ejp.convertRelativePath p
+            } else if (ejp[p] != null) {
+                ejp[p] = convertRelativePath ejp, p
             }
         }
     }

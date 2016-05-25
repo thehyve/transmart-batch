@@ -22,6 +22,8 @@ final class Tables {
     public static final String I2B2                     = 'i2b2metadata.i2b2'
     public static final String I2B2_SECURE              = 'i2b2metadata.i2b2_secure'
     public static final String I2B2_TAGS                = 'i2b2metadata.i2b2_tags'
+    public static final String I2B2_TAG_TYPES           = 'i2b2metadata.i2b2_tag_types'
+    public static final String I2B2_TAG_OPTIONS         = 'i2b2metadata.i2b2_tag_options'
     public static final String PATIENT_TRIAL            = 'i2b2demodata.patient_trial'
     public static final String PATIENT_DIMENSION        = 'i2b2demodata.patient_dimension'
     public static final String PATIENT_MAPPING          = 'i2b2demodata.patient_mapping'
@@ -37,6 +39,7 @@ final class Tables {
     public static final String SECURE_OBJECT            = 'searchapp.search_secure_object'
     public static final String SEARCH_AUTH_SEC_OBJ_ACC  = 'searchapp.search_auth_sec_object_access'
     public static final String BIO_DATA_UID             = 'biomart.bio_data_uid'
+    public static final String BIO_DISEASE              = 'biomart.bio_disease'
 
     public static final String GPL_INFO                 = 'deapp.de_gpl_info'
     public static final String SUBJ_SAMPLE_MAP          = 'deapp.de_subject_sample_mapping'
@@ -58,10 +61,24 @@ final class Tables {
     public static final String BIO_ASSAY_ANALYSIS_EXT   = 'biomart.bio_assay_analysis_ext'
     public static final String BIO_ASSAY_ANALYSIS_GWAS  = 'biomart.bio_assay_analysis_gwas'
     public static final String BIO_ASY_ANAL_GWAS_TOP500 = 'biomart.bio_asy_analysis_gwas_top50'
+    public static final String BIO_MARKER               = 'biomart.bio_marker'
 
     public static final String CHROMOSOMAL_REGION       = 'deapp.de_chromosomal_region'
     public static final String RNASEQ_DATA              = 'deapp.de_subject_rnaseq_data'
 
-    public static final String ACGH_DATA                = 'deapp.de_subject_acgh_data'
+    public static final String CNV_DATA                 = 'deapp.de_subject_acgh_data'
+
+    public static final String MIRNA_ANNOTATION         = 'deapp.de_qpcr_mirna_annotation'
+    public static final String MIRNA_DATA               = 'deapp.de_subject_mirna_data'
+
+    public static final String AM_TAG_ITEM              = 'amapp.am_tag_item'
+    public static final String AM_TAG_ASSOCIATION       = 'amapp.am_tag_association'
+    public static final String AM_TAG_VALUE             = 'amapp.am_tag_value'
+    public static final String AM_DATA_UID              = 'amapp.am_data_uid'
+    public static final String AM_TAG_TEMPLATE          = 'amapp.am_tag_template'
+    public static final String BIO_CONCEPT_CODE         = 'biomart.bio_concept_code'
+    public static final String FM_FOLDER                = 'fmapp.fm_folder'
+    public static final String FM_FOLDER_ASSOCIATION    = 'fmapp.fm_folder_association'
+    public static final String FM_DATA_UID              = 'fmapp.fm_data_uid'
 
 }
