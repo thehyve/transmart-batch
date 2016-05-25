@@ -13,7 +13,6 @@ import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.file.FlatFileHeaderCallback
 import org.springframework.batch.item.file.FlatFileItemWriter
-import org.springframework.batch.item.file.transform.DelimitedLineAggregator
 import org.springframework.batch.item.file.transform.FieldExtractor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -21,6 +20,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
+import org.transmartproject.batch.batchartifacts.CsvLineAggregator
 import org.transmartproject.batch.beans.AbstractJobConfiguration
 
 /**
@@ -129,8 +129,9 @@ class BrowseTagsExportJobConfiguration extends AbstractJobConfiguration {
         Resource resource = browseTagsFileResource(null)
         new FlatFileItemWriter(
                 resource: resource,
-                lineAggregator: new DelimitedLineAggregator<BrowseTagAssociation>(
-                        delimiter: '\t',
+                lineAggregator: new CsvLineAggregator<BrowseTagAssociation>(
+                        separator: '\t',
+                        lineEnd: '',
                         fieldExtractor: { BrowseTagAssociation item ->
                             ['\\',
                              item.value.type.displayName,

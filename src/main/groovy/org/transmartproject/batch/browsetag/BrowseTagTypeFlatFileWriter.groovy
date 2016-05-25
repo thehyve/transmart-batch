@@ -4,9 +4,9 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileHeaderCallback
 import org.springframework.batch.item.file.FlatFileItemWriter
-import org.springframework.batch.item.file.transform.DelimitedLineAggregator
 import org.springframework.batch.item.file.transform.FieldExtractor
 import org.springframework.core.io.Resource
+import org.transmartproject.batch.batchartifacts.CsvLineAggregator
 
 import javax.annotation.PostConstruct
 
@@ -19,8 +19,9 @@ class BrowseTagTypeFlatFileWriter implements ItemWriter<BrowseTagValue> {
     @Delegate
     FlatFileItemWriter<BrowseTagType> delegate
 
-    DelimitedLineAggregator<Collection<String>> valuesAggregator = new DelimitedLineAggregator<>(
-        fieldExtractor: { Collection<String> s -> s as Object[] } as FieldExtractor
+    CsvLineAggregator<Collection<String>> valuesAggregator = new CsvLineAggregator<>(
+            lineEnd: '',
+            fieldExtractor: { Collection<String> s -> s as Object[] } as FieldExtractor
     )
 
     private final Resource resource
@@ -33,8 +34,9 @@ class BrowseTagTypeFlatFileWriter implements ItemWriter<BrowseTagValue> {
     void init() {
         delegate = new FlatFileItemWriter(
                 resource: resource,
-                lineAggregator: new DelimitedLineAggregator<BrowseTagType>(
-                    delimiter: '\t',
+                lineAggregator: new CsvLineAggregator<BrowseTagType>(
+                    separator: '\t',
+                    lineEnd: '',
                     fieldExtractor: { BrowseTagType type ->
                         [   type.folderType.type,
                             type.displayName,

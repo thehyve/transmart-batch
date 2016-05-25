@@ -157,7 +157,7 @@ class BrowseTagAssociationDatabaseReader implements ItemStreamReader<BrowseTagAs
                 -1 as tag_item_id,
                 'study_description' as code,
                 'Study description' as display_name,
-                0 as display_order,
+                1 as display_order,
                 cast (exp.description as varchar(4000)) as value,
                 cast (exp.description as varchar(4000)) as description
             FROM $Tables.FM_FOLDER f
