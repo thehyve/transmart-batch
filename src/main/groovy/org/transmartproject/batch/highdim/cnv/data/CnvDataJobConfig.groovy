@@ -33,6 +33,8 @@ class CnvDataJobConfig extends AbstractTypicalHdDataJobConfig {
     Step deleteHdData
     @Resource
     Step secondPass
+    @Resource
+    Step applyConstraintsToPartitionDataTable
 
     @Bean
     Job cnvDataJob() {

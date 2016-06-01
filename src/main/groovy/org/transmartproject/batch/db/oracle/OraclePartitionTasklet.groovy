@@ -34,6 +34,7 @@ class OraclePartitionTasklet extends AbstractPartitionTasklet {
                   partitionName: partitionByColumnValue])
 
             if (!partitions) {
+                //TODO Could we add range partition to here?
                 jdbcTemplate.update("""ALTER TABLE ${tableName}
                 ADD PARTITION \"${partitionByColumnValue}\"
                 VALUES('${partitionByColumnValue}')""", [:])

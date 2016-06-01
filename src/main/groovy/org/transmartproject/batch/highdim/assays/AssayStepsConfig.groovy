@@ -54,6 +54,19 @@ class AssayStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
+    Step insertAssays(
+            ItemWriter<Assay> assayWriter,
+            ItemStreamReader<Assay> assayFromMappingFileRowReader,
+            SaveAssayIdListener saveAssayIdListener) {
+        steps.get('writeAssays')
+                .chunk(WRITE_ASSAY_CHUNK_SIZE)
+                .reader(assayFromMappingFileRowReader)
+                .writer(assayWriter)
+                .listener(saveAssayIdListener)
+                .build()
+    }
+
+    @Bean
     ItemStreamReader<MappingFileRow> mappingFileItemStreamReader() {
         FieldSetFactory fieldSetFactory = new DefaultFieldSetFactory(
                 numberFormat: new ScientificNotationFormat()
@@ -100,18 +113,5 @@ class AssayStepsConfig implements StepBuildingConfigurationTrait {
                 table: Tables.SUBJ_SAMPLE_MAP,
                 column: 'assay_id',
                 entityName: 'assay ids')
-    }
-
-    @Bean
-    Step insertAssays(
-            ItemWriter<Assay> assayWriter,
-            ItemStreamReader<Assay> assayFromMappingFileRowReader,
-            SaveAssayIdListener saveAssayIdListener) {
-        steps.get('writeAssays')
-                .chunk(WRITE_ASSAY_CHUNK_SIZE)
-                .reader(assayFromMappingFileRowReader)
-                .writer(assayWriter)
-                .listener(saveAssayIdListener)
-                .build()
     }
 }

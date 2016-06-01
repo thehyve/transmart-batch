@@ -1,7 +1,6 @@
 package org.transmartproject.batch.db
 
 import com.jolbox.bonecp.BoneCPDataSource
-import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -76,7 +75,6 @@ class DbConfig {
         new NamedParameterJdbcTemplate(jdbcTemplate)
     }
 
-    @JobScope
     @Bean
     SequenceReserver sequenceReserver(DatabaseImplementationClassPicker picker) {
         SequenceReserver result = picker.instantiateCorrectClass(

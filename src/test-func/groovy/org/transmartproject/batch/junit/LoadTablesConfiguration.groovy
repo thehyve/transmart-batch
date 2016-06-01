@@ -226,11 +226,6 @@ class LoadTablesConfiguration implements BeanDefinitionRegistryPostProcessor, Pr
     }
 
     @Bean
-    DatabaseImplementationClassPicker databasePicker() {
-        new DatabaseImplementationClassPicker()
-    }
-
-    @Bean
     TableTruncator tableTruncator(DatabaseImplementationClassPicker databasePicker) {
         databasePicker.instantiateCorrectClass(PostgresTableTruncator, OracleTableTruncator)
     }

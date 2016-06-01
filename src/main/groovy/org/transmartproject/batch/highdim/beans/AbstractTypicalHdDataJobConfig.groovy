@@ -78,6 +78,8 @@ abstract class AbstractTypicalHdDataJobConfig {
 
     abstract Step getPartitionDataTable()
 
+    abstract Step getApplyConstraintsToPartitionDataTable()
+
     abstract Step getFirstPass()
 
     abstract Step getDeleteHdData()
@@ -108,6 +110,7 @@ abstract class AbstractTypicalHdDataJobConfig {
                 .next(insertAssays)
                 .next(partitionDataTable)
                 .next(secondPass)
+                .next(applyConstraintsToPartitionDataTable)
                 .build()
     }
 }

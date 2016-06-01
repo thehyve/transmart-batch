@@ -33,6 +33,8 @@ class MrnaDataJobConfig extends AbstractTypicalHdDataJobConfig {
     Step partitionDataTable
     @Resource
     Step secondPass
+    @Resource
+    Step applyConstraintsToPartitionDataTable
 
     @Bean
     Job mrnaDataLoadJob() {

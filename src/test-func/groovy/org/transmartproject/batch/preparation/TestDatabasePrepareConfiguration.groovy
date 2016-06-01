@@ -98,11 +98,6 @@ class TestDatabasePrepareConfiguration {
     }
 
     @Bean
-    DatabaseImplementationClassPicker databasePicker() {
-        new DatabaseImplementationClassPicker()
-    }
-
-    @Bean
     NamedParameterJdbcTemplate namedParameterJdbcTemplate(
             JdbcTemplate jdbcTemplate) {
         new NamedParameterJdbcTemplate(jdbcTemplate)

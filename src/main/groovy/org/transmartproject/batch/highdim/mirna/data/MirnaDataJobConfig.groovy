@@ -33,6 +33,8 @@ class MirnaDataJobConfig extends AbstractTypicalHdDataJobConfig {
     Step partitionDataTable
     @Resource
     Step secondPass
+    @Resource
+    Step applyConstraintsToPartitionDataTable
 
     @Bean
     Job mirnaDataLoadJob() {

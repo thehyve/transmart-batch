@@ -33,6 +33,8 @@ class RnaSeqDataJobConfig extends AbstractTypicalHdDataJobConfig {
     Step deleteHdData
     @Resource
     Step secondPass
+    @Resource
+    Step applyConstraintsToPartitionDataTable
 
     @Bean
     Job rnaSeqDataJob() {

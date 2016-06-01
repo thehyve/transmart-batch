@@ -2,7 +2,9 @@ package org.transmartproject.batch.highdim.cnv.data
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.configuration.annotation.JobScope
+import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.core.step.tasklet.TaskletStep
@@ -10,6 +12,7 @@ import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.validator.ValidatingItemProcessor
+import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -20,13 +23,13 @@ import org.transmartproject.batch.batchartifacts.MultipleItemsLineItemReader
 import org.transmartproject.batch.batchartifacts.ValidationErrorMatcherBean
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
-import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.db.DbConfig
 import org.transmartproject.batch.db.DeleteByColumnValueWriter
-import org.transmartproject.batch.db.PostgresPartitionTasklet
 import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
+import org.transmartproject.batch.db.postgres.ApplyConstraintsTasklet
+import org.transmartproject.batch.db.postgres.CreateAssayBasedPartitionTableTasklet
 import org.transmartproject.batch.highdim.assays.AssayStepsConfig
 import org.transmartproject.batch.highdim.assays.CurrentAssayIdsReader
 import org.transmartproject.batch.highdim.datastd.FilterDataWithoutAssayMappingsItemProcessor
@@ -94,6 +97,11 @@ class CnvDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
+    Step applyConstraintsToPartitionDataTable() {
+        stepOf('applyConstraintsToPartitionDataTable', applyConstraintsTasklet())
+    }
+
+    @Bean
     Step secondPass(ItemWriter<CnvDataValue> cnvDataWriter,
                     ItemProcessor<CnvDataValue, CnvDataValue> compositeOfCnvSecondPassProcessors) {
         steps.get('secondPass')
@@ -150,25 +158,43 @@ class CnvDataStepsConfig implements StepBuildingConfigurationTrait {
     @Bean
     @JobScopeInterfaced
     Tasklet partitionTasklet() {
-        String studyId = JobSynchronizationManager.context
-                .jobParameters[StudyJobParametersModule.STUDY_ID]
-        assert studyId != null
-
-        switch (picker.pickClass(PostgresPartitionTasklet, OraclePartitionTasklet)) {
-            case PostgresPartitionTasklet:
-                return new PostgresPartitionTasklet(
+        switch (picker.pickClass(CreateAssayBasedPartitionTableTasklet, OraclePartitionTasklet)) {
+            case CreateAssayBasedPartitionTableTasklet:
+                return new CreateAssayBasedPartitionTableTasklet(
                         tableName: Tables.CNV_DATA,
-                        partitionByColumn: 'trial_name',
-                        partitionByColumnValue: studyId,
-                        //old cnv pipeline uses seq_mrna_partition_id
-                        sequence: Sequences.MRNA_PARTITION_ID,
-                        primaryKey: ['assay_id', 'region_id'])
+                )
             case OraclePartitionTasklet:
+                String studyId = JobSynchronizationManager.context
+                        .jobParameters[StudyJobParametersModule.STUDY_ID]
+                assert studyId != null
+
                 return new OraclePartitionTasklet(
                         tableName: Tables.CNV_DATA,
                         partitionByColumnValue: studyId)
             default:
-                throw new IllegalStateException('No supported DBMS detected.')
+                informTasklet('No partitioning implementation for this DBMS.')
+        }
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    Tasklet applyConstraintsTasklet() {
+        switch (picker.pickClass(ApplyConstraintsTasklet)) {
+            case ApplyConstraintsTasklet:
+                return new ApplyConstraintsTasklet(primaryKey: ['assay_id', 'region_id'])
+            default:
+                informTasklet('No constraints application for this DBMS.')
+        }
+    }
+
+    @Bean
+    Tasklet informTasklet(String message) {
+        new Tasklet() {
+            @Override
+            RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+                log.info(message)
+                RepeatStatus.FINISHED
+            }
         }
     }
 
