@@ -30,4 +30,6 @@ final class Sequences {
 
     public static final String RNASEQ_PARTITION_ID = 'deapp.seq_rna_partition_id'
 
+    public static final String VCF_ID = 'deapp.de_variant_subject_summary_seq'
+
 }

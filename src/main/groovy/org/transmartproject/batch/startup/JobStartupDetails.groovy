@@ -23,6 +23,7 @@ import org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataJobSpeci
 import org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataJobSpecification
 import org.transmartproject.batch.highdim.rnaseq.platform.RnaSeqAnnotationJobSpecification
+import org.transmartproject.batch.highdim.vcf.VcfJobSpecification
 import org.transmartproject.batch.i2b2.I2b2JobSpecification
 import org.transmartproject.batch.support.StringUtils
 import org.transmartproject.batch.tag.TagsLoadJobSpecification
@@ -59,6 +60,7 @@ final class JobStartupDetails {
             'cnv'                    : CnvDataJobSpecification,
             'mirna_annotation'       : MirnaAnnotationJobSpecification,
             'mirna'                  : MirnaDataJobSpecification,
+            'vcf'                    : VcfJobSpecification,
     ]
     public static final String STUDY_PARAMS_FILE_NAME = 'study' + PARAMS_FILE_EXTENSION
     public static final String PARAMS_FILE_EXTENSION = '.params'

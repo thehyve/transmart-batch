@@ -88,4 +88,11 @@ class TableLists {
             Tables.MIRNA_ANNOTATION,
     ]
 
+    public static final List<String> VCF_TABLES = [
+            Tables.GPL_INFO,
+            Tables.SUBJ_SAMPLE_MAP,
+            Tables.VCF_DATA,
+            Tables.VCF_DATASET,
+    ]
+
 }

@@ -32,6 +32,7 @@ dependencies {
     final ORACLE_VERSION = '11.2.0.3.0'
     final H2_VERSION = '1.4.185'
     final HIBERNATE_VALIDATOR_VERSION = '5.2.2.Final'
+    final SAMTOOLS_VERSION = '1.141'
 
     compile 'org.codehaus.groovy:groovy-all:2.3.6'
 
@@ -50,6 +51,7 @@ dependencies {
 
     compile group: 'ch.qos.logback', name: 'logback-classic', version: LOGBACK_VERSION
     compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: SLF4J_VERSION
+    compile group: 'com.github.samtools', name: 'htsjdk', version: SAMTOOLS_VERSION
 
     runtime group: 'org.postgresql', name: 'postgresql', version: POSTGRESQL_VERSION
     runtime group: 'com.oracle',     name: 'ojdbc6',     version: ORACLE_VERSION

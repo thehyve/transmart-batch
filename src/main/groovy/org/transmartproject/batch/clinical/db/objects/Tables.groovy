@@ -68,4 +68,7 @@ final class Tables {
     public static final String MIRNA_ANNOTATION         = 'deapp.de_qpcr_mirna_annotation'
     public static final String MIRNA_DATA               = 'deapp.de_subject_mirna_data'
 
+    public static final String VCF_DATASET              = 'deapp.de_variant_dataset'
+    public static final String VCF_DATA                 = 'deapp.de_variant_summary_detail_gene'
+
 }

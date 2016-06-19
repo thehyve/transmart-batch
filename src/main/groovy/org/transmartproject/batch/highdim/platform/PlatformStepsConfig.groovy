@@ -64,11 +64,11 @@ class PlatformStepsConfig implements StepBuildingConfigurationTrait {
     @JobScope
     Platform platformObject(@Value('#{jobParameters}') Map<String, Object> parameters) {
         new Platform(
-                id: parameters[AbstractPlatformJobSpecification.PLATFORM],
-                title: parameters[AbstractPlatformJobSpecification.TITLE],
-                organism: parameters[AbstractPlatformJobSpecification.ORGANISM],
-                markerType: parameters[AbstractPlatformJobSpecification.MARKER_TYPE],
-                genomeRelease: parameters[AbstractPlatformJobSpecification.GENOME_RELEASE],
+                id: parameters[PlatformParametersModule.PLATFORM],
+                title: parameters[PlatformParametersModule.TITLE],
+                organism: parameters[PlatformParametersModule.ORGANISM],
+                markerType: parameters[PlatformParametersModule.MARKER_TYPE],
+                genomeRelease: parameters[PlatformParametersModule.GENOME_RELEASE],
         )
     }
 
