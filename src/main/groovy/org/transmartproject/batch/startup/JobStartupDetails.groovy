@@ -25,6 +25,7 @@ import org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataJobSpeci
 import org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataJobSpecification
 import org.transmartproject.batch.highdim.rnaseq.platform.RnaSeqAnnotationJobSpecification
+import org.transmartproject.batch.highdim.rnaseq.transcript.platform.RnaSeqTranscriptAnnotationJobSpecification
 import org.transmartproject.batch.i2b2.I2b2JobSpecification
 import org.transmartproject.batch.support.StringUtils
 import org.transmartproject.batch.tag.TagsLoadJobSpecification
@@ -45,27 +46,28 @@ final class JobStartupDetails implements Comparable<JobStartupDetails> {
      * Order of entries matters. See {@link this.DATA_TYPES_UPLOAD_PRIORITY_ORDER}
      */
     private final static Map<String, Class<? extends JobSpecification>> DATA_TYPE_TO_JOB_SPEC = [
-            'backout'                : BackoutJobSpecification,
-            'i2b2'                   : I2b2JobSpecification,
-            'clinical'               : ClinicalJobSpecification,
+            'backout'                     : BackoutJobSpecification,
+            'i2b2'                        : I2b2JobSpecification,
+            'clinical'                    : ClinicalJobSpecification,
             //Legacy. Deprecated. Use mrna_annotation instead
-            'annotation'             : AnnotationJobSpecification,
+            'annotation'                  : AnnotationJobSpecification,
             //New name for mrna platform. Unlike old platform data file, new file contains a header.
             //That's why we need ne specification class.
-            'mrna_annotation'        : MrnaAnnotationJobSpecification,
-            'expression'             : MrnaDataJobSpecification,
-            'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,
-            'metabolomics'           : MetabolomicsDataJobSpecification,
-            'proteomics_annotation'  : ProteomicsAnnotationJobSpecification,
-            'proteomics'             : ProteomicsDataJobSpecification,
-            'gwas'                   : GwasJobSpecification,
-            'rnaseq_annotation'      : RnaSeqAnnotationJobSpecification,
-            'rnaseq'                 : RnaSeqDataJobSpecification,
-            'cnv_annotation'         : CnvAnnotationJobSpecification,
-            'cnv'                    : CnvDataJobSpecification,
-            'mirna_annotation'       : MirnaAnnotationJobSpecification,
-            'mirna'                  : MirnaDataJobSpecification,
-            'tags'                   : TagsLoadJobSpecification,
+            'mrna_annotation'             : MrnaAnnotationJobSpecification,
+            'expression'                  : MrnaDataJobSpecification,
+            'metabolomics_annotation'     : MetabolomicsAnnotationJobSpecification,
+            'metabolomics'                : MetabolomicsDataJobSpecification,
+            'proteomics_annotation'       : ProteomicsAnnotationJobSpecification,
+            'proteomics'                  : ProteomicsDataJobSpecification,
+            'gwas'                        : GwasJobSpecification,
+            'rnaseq_annotation'           : RnaSeqAnnotationJobSpecification,
+            'rnaseq'                      : RnaSeqDataJobSpecification,
+            'cnv_annotation'              : CnvAnnotationJobSpecification,
+            'cnv'                         : CnvDataJobSpecification,
+            'mirna_annotation'            : MirnaAnnotationJobSpecification,
+            'mirna'                       : MirnaDataJobSpecification,
+            'tags'                        : TagsLoadJobSpecification,
+            'rnaseq_transcript_annotation': RnaSeqTranscriptAnnotationJobSpecification,
     ]
 
     private final static Map<String, Integer> DATA_TYPES_UPLOAD_PRIORITY_ORDER
