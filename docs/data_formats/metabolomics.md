@@ -12,8 +12,8 @@ need to be correct. The recommended order is `BIOCHEMICAL`, `SUPER_PATHWAY`,
 
 - The only mandatory column is `BIOCHEMICAL`.
 - The column `SUB_PATHWAY` is required if `SUPER_PATHWAY` is provided.
-- If a super-pathway is included in more than one row, the corresponding
-  sub-pathway must be the same in all the cases.
+- If a super-pathway is included in more than one row, the corresponding sub-pathways
+  can only map to that particular super-pathway. This cannot be a one to many mapping.
 - The columns `BIOCHEMICAL` and `HMDB_ID` must be independently unique. (Note:
   the database schema supports associating one biochemical with multiple
   sub-pathways; this is currently not supported in the job).
