@@ -35,11 +35,11 @@ class DeleteObservationFactTasklet extends GenericTableUpdateTasklet {
 
         def q = """
             DELETE FROM i2b2demodata.observation_fact
-            WHERE concept_cd IN (
+            WHERE sourcesystem_cd = ? and (concept_cd IN (
                 SELECT c_basecode FROM i2b2metadata.i2b2
                 WHERE sourcesystem_cd = ?
                 AND c_visualattributes ${highDim ? '' : 'NOT'} LIKE '__H' ESCAPE '\\'
-                $baseNodePart)"""
+                $baseNodePart) or concept_cd='SECURITY')"""
 
         log.debug("Query is $q")
         q
@@ -48,8 +48,9 @@ class DeleteObservationFactTasklet extends GenericTableUpdateTasklet {
     @Override
     void setValues(PreparedStatement ps) throws SQLException {
         ps.setString(1, studyId)
+        ps.setString(2, studyId)
         basePaths.eachWithIndex { ConceptPath basePath, int i ->
-            ps.setString(i + 2, StringUtils.escapeForLike(basePath.toString(), '\\'))
+            ps.setString(i + 3, StringUtils.escapeForLike(basePath.toString(), '\\'))
         }
     }
 }
