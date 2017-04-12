@@ -77,7 +77,8 @@ class BackoutContext {
             value = value.parent
         }
 
-        assert value == topNode || value.parent == topNode
+        //FIXME Why?
+        //assert value == topNode || value.parent == topNode
 
         log.debug("New job step count dirty base is $value")
 
