@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.*
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class DemographicsReuploadTests implements JobRunningTestTrait {
+class DemographicsReUploadTests implements JobRunningTestTrait {
 
     @ClassRule
     public final static TestRule RUN_JOB_RULE = new RuleChain([

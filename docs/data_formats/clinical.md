@@ -20,17 +20,20 @@ COLUMN_MAP_FILE format
 
 |Filename|Category Code|Column Number|Data Label|Data Label Source|Control Vocab Cd|Concept Type |
 |--------|-------------|-------------|----------|-----------------|----------------|-------------|
-|data.txt|folder       |   0         |gewicht   |                 |                |NUMERICAL    |
+|data.txt|path\to\label|1            |Age       |                 |                |NUMERICAL    |
 Table, tab separated, txt file. It contains information about columns which are
 to be uploaded into tranSMART.
-- `Filename`  This column determines the file where
-column is located
-- `Category Code` Path which contains the file
-- `Column Number` Index of the column from the left beginning from 0
-- `Data Label`  Label visible inside tranSMART after upload
-- `Data Label Source` works for template column only (has `\` in data label column). Refers to the data label column where to get data for dynamic concept path generation. See [templates](templates.md) documentation for more details.
-- `Control Vocab cd`  IGNORED skip if you don't need Concept Type Column
-- `Concept Type`  Use this concept type instead of inferring it from the first row
+- `Filename`  This column determines the file where column is located.
+- `Category Code` Path in concept tree between the study node and the data label, 
+subdirectories can be represented by joining names with a divider sign (plus `+` or back slash `\`).
+To place a concept directly within the study directory, enter only a divider sign.
+- `Column Number` Index of the column from the left beginning from 1.
+- `Data Label`  Label visible inside tranSMART after upload.
+- `Data Label Source` works for template column only (has `\` in data label column). 
+Refers to the data label column where to get data for dynamic concept path generation. 
+See [templates](templates.md) documentation for more details.
+- `Control Vocab cd`  IGNORED skip if you don't need Concept Type Column.
+- `Concept Type`  Use this concept type instead of inferring it from the first row.
 
 Allowed values for Concept type:
 - `NUMERICAL` for numerical
