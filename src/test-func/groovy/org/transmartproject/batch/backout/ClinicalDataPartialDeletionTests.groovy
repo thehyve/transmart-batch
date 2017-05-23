@@ -2,6 +2,7 @@ package org.transmartproject.batch.backout
 
 import org.junit.AfterClass
 import org.junit.ClassRule
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule

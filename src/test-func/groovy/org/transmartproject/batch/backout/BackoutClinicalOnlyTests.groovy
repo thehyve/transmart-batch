@@ -18,7 +18,10 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
+import static org.hamcrest.Matchers.empty
+import static org.hamcrest.Matchers.hasSize
 import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.isEmptyOrNullString
 import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 import static org.transmartproject.batch.support.StringUtils.escapeForLike
 
@@ -56,25 +59,25 @@ class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
     }
 
     @Test
-    void testTwoConceptsRemain() {
+    void testOneConceptsRemain() {
         def res = queryForList("""
                 SELECT c_fullname FROM $Tables.I2B2
                 ORDER BY c_fullname""", [:], String)
 
         assertThat res, contains(
                 is(PUBLIC_STUDIES_PATH),
-                is(TOP_NODE_PATH))
+        )
     }
 
     @Test
-    void testConceptCountForTopNodeIsZero() {
+    void testConceptCountForTopNodeIsNotExisting() {
         def res = queryForList("""
                 SELECT patient_count
                 FROM $Tables.CONCEPT_COUNTS
                 WHERE concept_path LIKE :path_expr ESCAPE '\\'""",
                 [path_expr: escapeForLike(PUBLIC_STUDIES_PATH) + '%'], Long)
 
-        assertThat res, contains(isIntegerNumber(0l))
+        assertThat res, hasSize(0) 
     }
 
     @Test
