@@ -35,10 +35,10 @@ class RnaSeqDataReUploadTests implements JobRunningTestTrait {
 
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
-            new RunJobRule(STUDY_ID, 'rnaseq', ['-n']),
-            new RunJobRule(STUDY_ID, 'rnaseq'),
+            new RunJobRule(STUDY_ID, 'rnaseq', ['-n', '-d', 'SECURITY_REQUIRED=Y']),
+            new RunJobRule(STUDY_ID, 'rnaseq', ['-d', 'SECURITY_REQUIRED=Y']),
             new RunJobRule(PLATFORM_ID, 'rnaseq_annotation'),
-            new RunJobRule(STUDY_ID, 'clinical'),
+            new RunJobRule(STUDY_ID, 'clinical', ['-d', 'SECURITY_REQUIRED=Y']),
     ])
 
     // needed by the trait
@@ -68,5 +68,14 @@ class RnaSeqDataReUploadTests implements JobRunningTestTrait {
 
         assertThat count,
                 is(equalTo(NUMBER_OF_ASSAYS * NUMBER_OF_REGIONS))
+    }
+
+    @Test
+    void testSecurityRecordRemains() {
+        def count = rowCounter.count Tables.OBSERVATION_FACT,
+                'concept_cd = :concept_cd',
+                concept_cd: 'SECURITY'
+
+        assertThat count, equalTo(1l)
     }
 }
