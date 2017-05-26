@@ -57,15 +57,15 @@ class VcfCleanScenarioTests implements JobRunningTestTrait {
     @Test
     void testDataSet() {
         def q = """
-                SELECT dataset_id, genome
+                SELECT *
                 FROM ${Tables.VCF_DATASET}
                 WHERE gpl_id = :gpl_id"""
         def p = [gpl_id: PLATFORM_ID]
 
         Map<String, Object> r = queryForMap q, p
         assertThat r, allOf(
-                //Hex digits representation of UUID contains 4 slashes
-                hasEntry('dataset_id', contains('-', '-', '-', '-')),
+                hasEntry(is('dataset_id'), containsString('-')),
+                hasEntry('datasource_id', STUDY_ID),
                 hasEntry('genome', 'hg19'),
         )
     }
@@ -140,10 +140,8 @@ class VcfCleanScenarioTests implements JobRunningTestTrait {
 
         assertThat r, allOf(
                 hasEntry(is('variant_subject_summary_id'), notNullValue()),
-                //Hex digits representation of UUID contains 4 slashes
-//                hasEntry(is('dataset_id'), contains('-', '-', '-', '-')),
-//                hasEntry('subject_id', 'VCaP'),
-//                hasEntry('rs_id', '.'),
+                hasEntry(is('dataset_id'), containsString('-')),
+                hasEntry('rs_id', '.'),
 
 //                hasEntry('variant', 'A/G'), //Is it REF/ALT ? No! What is that then?
 //                hasEntry('variant_format', 'R/V'), //Where do we get this value from?

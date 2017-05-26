@@ -28,6 +28,8 @@ class VcfJobConfig extends AbstractTypicalHdDataJobConfig {
     Step deleteGplInfo
     @Resource
     Step insertGplInfo
+    @Resource
+    Step insertDataset
 
     @Resource
     Step loadAnnotationMappings
@@ -47,6 +49,8 @@ class VcfJobConfig extends AbstractTypicalHdDataJobConfig {
                 //TODO introduce ensureGplInfo
                 .start(deleteGplInfo)
                 .next(insertGplInfo)
+                //TODO Remove data set record first
+                .next(insertDataset)
                 .next(typicalHdDataFlow())
                 .build()
 

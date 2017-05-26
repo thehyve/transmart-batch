@@ -28,6 +28,9 @@ class InsertVariantWriter implements ItemWriter<VariantContext> {
     @Value("#{vcfContextItems.sampleCodeAssayIdMap}")
     Map<String, Long> sampleCodeAssayIdMap
 
+    @Value("#{jobExecution.executionContext.get('datasetId')}")
+    String datasetId
+
     @Override
     void write(List<? extends VariantContext> items) throws Exception {
         simpleJdbcInsert.executeBatch(
@@ -35,7 +38,7 @@ class InsertVariantWriter implements ItemWriter<VariantContext> {
                 def commonPart = [
                         chr         : context.contig,
                         pos         : context.start,
-                        //dataset_id: datasetId,
+                        dataset_id  : datasetId,
                         rs_id       : context.ID,
                         variant_type: context.type.name(),
                         ref         : context.reference.displayString,
@@ -51,7 +54,6 @@ class InsertVariantWriter implements ItemWriter<VariantContext> {
                 context.genotypes.collect { Genotype genotype ->
                     def genotypeMap = commonPart.clone()
                     genotypeMap['variant_subject_summary_id'] = sequenceReserver.getNext(Sequences.VCF_ID)
-                    //subject_id: subjectId,
                     //variant: 'A/G',
                     //variant_format: 'R/V',
                     //reference
