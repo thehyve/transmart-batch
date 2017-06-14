@@ -88,4 +88,11 @@ class TableLists {
             Tables.MIRNA_ANNOTATION,
     ]
 
+    public static final List<String> MAF_TABLES = [
+            Tables.GPL_INFO,
+            Tables.SUBJ_SAMPLE_MAP,
+            Tables.MAF_MUTATION,
+            Tables.MAF_MUTATION_EVENT,
+    ]
+
 }

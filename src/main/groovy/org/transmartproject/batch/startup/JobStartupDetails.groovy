@@ -14,6 +14,7 @@ import org.transmartproject.batch.clinical.ClinicalJobSpecification
 import org.transmartproject.batch.gwas.GwasJobSpecification
 import org.transmartproject.batch.highdim.cnv.data.CnvDataJobSpecification
 import org.transmartproject.batch.highdim.cnv.platform.CnvAnnotationJobSpecification
+import org.transmartproject.batch.highdim.maf.MafJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.data.MetabolomicsDataJobSpecification
 import org.transmartproject.batch.highdim.metabolomics.platform.MetabolomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.mirna.data.MirnaDataJobSpecification
@@ -65,6 +66,7 @@ final class JobStartupDetails implements Comparable<JobStartupDetails> {
             'cnv'                    : CnvDataJobSpecification,
             'mirna_annotation'       : MirnaAnnotationJobSpecification,
             'mirna'                  : MirnaDataJobSpecification,
+            'maf'                    : MafJobSpecification,
             'tags'                   : TagsLoadJobSpecification,
     ]
 

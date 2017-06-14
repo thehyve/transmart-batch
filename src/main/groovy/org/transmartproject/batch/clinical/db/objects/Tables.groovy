@@ -67,5 +67,8 @@ final class Tables {
 
     public static final String MIRNA_ANNOTATION         = 'deapp.de_qpcr_mirna_annotation'
     public static final String MIRNA_DATA               = 'deapp.de_subject_mirna_data'
+    //we sticked with naming used in cBioPortal
+    public static final String MAF_MUTATION             = 'deapp.mutation'
+    public static final String MAF_MUTATION_EVENT       = 'deapp.mutation_event'
 
 }

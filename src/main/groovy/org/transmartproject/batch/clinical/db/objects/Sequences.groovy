@@ -30,4 +30,6 @@ final class Sequences {
 
     public static final String RNASEQ_PARTITION_ID = 'deapp.seq_rna_partition_id'
 
+    public static final String MAF_EVENT_ID = 'deapp.mutation_event_mutation_event_id_seq'
+
 }

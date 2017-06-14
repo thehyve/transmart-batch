@@ -1,0 +1,7 @@
+DATA_FILE_PREFIX=shortened_test_maf.tsv
+MAP_FILENAME=subject_sample_mapping.tsv
+STUDY_ID=BRCA_TCGA
+PLATFORM=MAF_HG19
+TITLE="MAF platform for hg19"
+ORGANISM="Homo Sapiens"
+GENOME_RELEASE=hg19
