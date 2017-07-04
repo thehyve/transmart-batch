@@ -329,8 +329,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @JobScopeInterfaced
-    Tasklet deleteObservationFactTasklet() {
-        new DeleteObservationFactTasklet()
+    Tasklet deleteObservationFactTasklet(
+            @Value("#{jobParameters['TOP_NODE']}") topNode) {
+        new DeleteObservationFactTasklet(basePath: new ConceptPath(topNode))
     }
 
     @Bean

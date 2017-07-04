@@ -18,10 +18,7 @@ import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
-import static org.hamcrest.Matchers.empty
-import static org.hamcrest.Matchers.hasSize
 import static org.hamcrest.Matchers.is
-import static org.hamcrest.Matchers.isEmptyOrNullString
 import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 import static org.transmartproject.batch.support.StringUtils.escapeForLike
 
@@ -30,7 +27,7 @@ import static org.transmartproject.batch.support.StringUtils.escapeForLike
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
+class BackoutClinicalOnlyTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
 
@@ -66,7 +63,7 @@ class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
 
         assertThat res, contains(
                 is(PUBLIC_STUDIES_PATH),
-        )
+                is(TOP_NODE_PATH))
     }
 
     @Test
@@ -77,7 +74,7 @@ class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
                 WHERE concept_path LIKE :path_expr ESCAPE '\\'""",
                 [path_expr: escapeForLike(PUBLIC_STUDIES_PATH) + '%'], Long)
 
-        assertThat res, hasSize(0) 
+        assertThat res, contains(isIntegerNumber(0l)) //hasSize(0)
     }
 
     @Test

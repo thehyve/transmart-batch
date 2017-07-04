@@ -163,7 +163,7 @@ class InsertConceptsService {
         def res = conceptTree.childrenFor(concept).isEmpty() ?
                 (concept.type == ConceptType.HIGH_DIMENSIONAL ? 'LAH' : 'LA') :
                 'FA'
-        if (res == 'FA' && concept.path == topNode) {
+        if (res == 'FA' && !conceptTree.findStudyNode(concept.path) && concept.path == topNode) {
             // add the study modifier for the top node
             res = 'FAS'
         }

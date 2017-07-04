@@ -83,15 +83,25 @@ class ConceptTree {
         nodeMap[path]
     }
 
+    ConceptNode findStudyNode(ConceptPath path) {
+        ConceptNode studyNode = null
+        path.allParents.each {
+            if (nodeMap[it].type == ConceptType.STUDY) {
+                studyNode = nodeMap[it]
+            }
+        }
+        studyNode
+    }
+
     ConceptNode getOrGenerate(ConceptPath path, ConceptType type) {
         def node = nodeMap[path]
         if (node) {
             if (node.type == ConceptType.UNKNOWN) {
                 node.type = type
                 log.debug("Assigning type $type to concept node $node")
-            } else if (type != ConceptType.UNKNOWN && node.type != type) {
+            } /*else if (type != ConceptType.UNKNOWN && node.type != type) {
                 throw new UnexpectedConceptTypeException(type, node.type, path)
-            }
+            }*/
             return node
         }
 
@@ -136,7 +146,7 @@ class ConceptTree {
     }
 
     boolean isStudyNode(ConceptNode node) {
-        topNodePath.isPrefixOf(node.path)
+        node.type == ConceptType.STUDY || topNodePath.isPrefixOf(node.path) || findStudyNode(node.path)
     }
 
     Collection<ConceptNode> getAllStudyNodes() {

@@ -120,6 +120,10 @@ class GatherCurrentConceptsTasklet implements Tasklet {
             return ConceptType.HIGH_DIMENSIONAL
         }
 
+        if (visualAttributes.size() == 3 && visualAttributes[2] == 'S') {
+            return ConceptType.STUDY
+        }
+
         String metadataXml = rs.getString('c_metadataxml')
         if (!metadataXml) {
             return ConceptType.CATEGORICAL

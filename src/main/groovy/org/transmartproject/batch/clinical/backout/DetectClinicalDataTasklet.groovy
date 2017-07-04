@@ -66,11 +66,9 @@ class DetectClinicalDataTasklet implements Tasklet {
     private Set<ConceptNode> fetchIrrelevantNodes() {
         Set<ConceptNode> seenConceptNodes = [] as Set
 
-        //FIXME Always include ancestors of the irrelevant nodes
         conceptTree.allConceptNodes.each { ConceptNode node ->
             if (node.type == ConceptType.HIGH_DIMENSIONAL ||
-                    !node.path.contains(topNode)
-                    //node.path == topNode
+                    !node.path.contains(topNode) || node.path == topNode
             ) {
                 def curNode = node
                 while (curNode != null) {

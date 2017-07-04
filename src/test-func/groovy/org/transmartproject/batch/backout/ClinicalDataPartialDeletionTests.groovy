@@ -2,7 +2,6 @@ package org.transmartproject.batch.backout
 
 import org.junit.AfterClass
 import org.junit.ClassRule
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -11,18 +10,14 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.beans.GenericFunctionalTestConfiguration
 import org.transmartproject.batch.beans.PersistentContext
+import org.transmartproject.batch.clinical.ClinicalDataCleanScenarioTests
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
 import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.allOf
-import static org.hamcrest.Matchers.containsInAnyOrder
-import static org.hamcrest.Matchers.empty
-import static org.hamcrest.Matchers.hasItem
-import static org.hamcrest.Matchers.not
-import static org.hamcrest.Matchers.contains
+import static org.hamcrest.Matchers.*
 
 /**
  * Tests private clinical study reupload.
@@ -34,12 +29,18 @@ class ClinicalDataPartialDeletionTests implements JobRunningTestTrait {
     public static final String STUDY_ID = 'GSE8581'
 
     static pathToRemove = '\\Private Studies\\GSE8581\\Endpoints\\'
+    static topNode = '\\Private Studies\\GSE8581\\'
+
 
     @ClassRule
-    public final static TestRule RUN_JOB_RULE = new RuleChain([
-            new RunJobRule("${STUDY_ID}", 'backout',  ['-d', 'SECURITY_REQUIRED=Y', '-d', 'TOP_NODE=' + pathToRemove]),
+    public final static TestRule RUN_JOB_RULES = new RuleChain([
+            new RunJobRule("${STUDY_ID}", 'backout', ['-d', 'SECURITY_REQUIRED=Y', '-d',
+                    'TOP_NODE=' + pathToRemove, '-d', 'INCLUDED_TYPES=clinical']),
             new RunJobRule("${STUDY_ID}", 'clinical', ['-d', 'SECURITY_REQUIRED=Y']),
     ])
+
+    public final static TestRule RUN_JOB_RULE =
+            RUN_JOB_RULES.rulesStartingWithInnerMost[0]
 
     @AfterClass
     static void cleanDatabase() {
@@ -52,7 +53,6 @@ class ClinicalDataPartialDeletionTests implements JobRunningTestTrait {
     // Test to see if the observations from subjects are preserved.
     // Test to see if subjects folder is preserved
     // test concept counts
-    // test that HD nodes and TOP_NODE remain
 
     @Test
     void testFolderAndSubfoldersRemoved() {
@@ -69,15 +69,64 @@ class ClinicalDataPartialDeletionTests implements JobRunningTestTrait {
     }
 
     @Test
-    void testTopStudyNodePersists(){
+    void testTopStudyNodePersists() {
+        def conceptPaths = getAllStudyConceptPaths(STUDY_ID)
+        assertThat(conceptPaths, hasItem(topNode))
+    }
 
+    //Is it Observation or fact?
+    @Test
+    void testObservationsDeleted() {
+        def results = getAllObservations(STUDY_ID)
+        results.each {
+            assertThat(it["concept_path"], not(containsString(pathToRemove)))
+        }
+    }
+
+    @Test
+    void testObservationsRemain() {
+        def results = getAllObservations(STUDY_ID)
+        def remainedConcept = "\\Private Studies\\GSE8581\\Subjects\\"
+        results.each {
+            assertThat(it["concept_path"], (containsString(remainedConcept)))
+        }
+    }
+
+    @Test
+    void testConceptCountsRemain() {
+//        def q = "SELECT * FROM ${Tables.CONCEPT_COUNTS}"
+//        def results = queryForList(q, [:]).collect {
+//            it.concept_path
+//        }
+        // assertThat(results, everyItem(not(containsString(pathToRemove))))
+        assertThat rowCounter.count(Tables.CONCEPT_COUNTS), is(17L)
+    }
+
+    //TODO: Make patients remain for partial deletion while using ClinicalOnly and Full
+    @Test
+    void testSubjectsRemain() {
+        long numPatientDim = rowCounter.count(
+                Tables.PATIENT_DIMENSION,
+                'sourcesystem_cd LIKE :pat',
+                pat: "$STUDY_ID:%")
+
+        assertThat numPatientDim, is(ClinicalDataCleanScenarioTests.NUMBER_OF_PATIENTS)
     }
 
     def getAllStudyConceptPaths(String studyId) {
-        def q = "SELECT concept_path FROM i2b2demodata.concept_dimension WHERE concept_path LIKE '\\\\Private Studies\\\\${studyId}\\\\%'"
-        queryForList(q, [:]).collect {
-            it.concept_path
-        }
+        def q = "SELECT concept_path FROM i2b2demodata.concept_dimension WHERE concept_path LIKE " +
+                "'\\\\Private Studies\\\\${studyId}\\\\%'"
+        queryForList(q, [:])*.concept_path
+    }
+
+    def getAllObservations(String studyId) {
+        def q = """
+            SELECT DISTINCT C.concept_path
+            FROM ${Tables.OBSERVATION_FACT} O
+            INNER JOIN ${Tables.CONCEPT_DIMENSION} C on C.concept_cd = O.concept_cd
+            WHERE O.sourcesystem_cd = :ss"""
+
+        queryForList q, [ss: studyId]
     }
 
 }
