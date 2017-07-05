@@ -119,6 +119,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 // insertion of ancillary data
                 .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object
                 .next(stepOf(this.&getInsertTableAccessTasklet))
+                .next(wrapStepWithName('calculateConceptCountsStep', calculateConceptCountsStep()))
                 .next(wrapStepWithName('insertConceptCountsStep',
                         insertConceptCountsStep(null)))
                 .build()
@@ -254,7 +255,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                     patientDimensionTableWriter,
                     conceptsTablesWriter,
                     observationFactTableWriter,
-                    bitSetConceptCountsWriter(),
                 ))
                 .listener(progressWriteListener())
                 .listener(clinicalJobRowProcessingCompletionPolicy())
@@ -270,6 +270,12 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     BitSetConceptCountsWriter bitSetConceptCountsWriter() {
         new BitSetConceptCountsWriter()
+    }
+
+    @Bean
+    @JobScope
+    GatherCurrentPatientConceptPairsReader gatherCurrentPatientConceptPairsReader() {
+        new GatherCurrentPatientConceptPairsReader()
     }
 
     @Bean
@@ -306,6 +312,17 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @StepScopeInterfaced
     ItemProcessor<ClinicalDataRow, ClinicalFactsRowSet> rowToFactRowSetConverter() {
         new ClinicalDataRowProcessor()
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    Step calculateConceptCountsStep() {
+        steps.get('calculateConceptCountsStep')
+                .chunk(CHUNK_SIZE)
+                .reader(gatherCurrentPatientConceptPairsReader())
+                .writer(bitSetConceptCountsWriter())
+                .listener(progressWriteListener())
+                .build()
     }
 
     @Bean
