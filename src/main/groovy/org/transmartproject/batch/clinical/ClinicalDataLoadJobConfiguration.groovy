@@ -1,13 +1,16 @@
 package org.transmartproject.batch.clinical
 
+import groovy.util.logging.Slf4j
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.flow.support.SimpleFlow
+import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
@@ -15,6 +18,7 @@ import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.mapping.FieldSetMapper
 import org.springframework.batch.item.validator.ValidatingItemProcessor
+import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
@@ -55,6 +59,7 @@ import org.transmartproject.batch.tag.TagsLoadJobConfiguration
         'org.transmartproject.batch.patient',
         'org.transmartproject.batch.facts'])
 @Import(TagsLoadJobConfiguration)
+@Slf4j
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     public static final String JOB_NAME = 'ClinicalDataLoadJob'
@@ -109,7 +114,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .next(allowStartStepOf(this.&gatherXtrialNodesTasklet))
 
                 // delete data we'll be replacing
-                .next(stepOf(this.&deleteObservationFactTasklet))
+                .next(stepOf('deleteObservationFactTasklet', deleteObservationFactTasklet(null, null)))
                 .next(stepOf(this.&deleteConceptCountsTasklet))
 
                 // main data reading and insertion step (in observation_fact)
@@ -347,8 +352,18 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     @JobScopeInterfaced
     Tasklet deleteObservationFactTasklet(
-            @Value("#{jobParameters['TOP_NODE']}") topNode) {
-        new DeleteObservationFactTasklet(basePath: new ConceptPath(topNode))
+            @Value("#{jobParameters['TOP_NODE']}") String topNode,
+            @Value("#{jobParameters['APPEND_FACTS']}") String appendFacts) {
+        if (appendFacts == 'Y') {
+            new Tasklet() {
+                @Override
+                RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+                    log.info('Append mode is on. No observations will be deleted.')
+                }
+            }
+        } else {
+            new DeleteObservationFactTasklet(basePath: new ConceptPath(topNode))
+        }
     }
 
     @Bean

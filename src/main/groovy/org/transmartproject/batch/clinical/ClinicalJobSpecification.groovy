@@ -14,6 +14,7 @@ final class ClinicalJobSpecification implements
     public final static String RECORD_EXCLUSION_FILE = 'RECORD_EXCLUSION_FILE'
     public final static String XTRIAL_FILE = 'XTRIAL_FILE'
     public final static String TAGS_FILE = 'TAGS_FILE'
+    public final static String APPEND_FACTS = 'APPEND_FACTS'
 
     List<? extends ExternalJobParametersModule> jobParametersModules = [
             new StudyJobParametersModule(),
@@ -27,7 +28,8 @@ final class ClinicalJobSpecification implements
             WORD_MAP_FILE,
             RECORD_EXCLUSION_FILE,
             XTRIAL_FILE,
-            TAGS_FILE)
+            TAGS_FILE,
+            APPEND_FACTS)
 
     void validate(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
@@ -37,6 +39,7 @@ final class ClinicalJobSpecification implements
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
         ejp[COLUMN_MAP_FILE] = convertRelativePath ejp, COLUMN_MAP_FILE
+        mungeBoolean(ejp, APPEND_FACTS, false)
 
         [WORD_MAP_FILE,
          RECORD_EXCLUSION_FILE,
