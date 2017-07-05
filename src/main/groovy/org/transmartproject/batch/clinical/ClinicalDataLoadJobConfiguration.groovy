@@ -113,8 +113,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .next(allowStartStepOf(this.&getGatherCurrentConceptsTasklet))
                 .next(allowStartStepOf(this.&gatherXtrialNodesTasklet))
 
+                .next(stepOf('validateStudyIdConsistencyStep', validateStudyIdConsistencyTasklet()))
                 // delete data we'll be replacing
-                .next(stepOf('deleteObservationFactTasklet', deleteObservationFactTasklet(null, null)))
+                .next(stepOf('deleteObservationFactStep', deleteObservationFactTasklet(null, null)))
                 .next(stepOf(this.&deleteConceptCountsTasklet))
 
                 // main data reading and insertion step (in observation_fact)
@@ -347,6 +348,12 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     InsertConceptCountsBitSetWriter insertConceptCountsBitSetWriter() {
         new InsertConceptCountsBitSetWriter()
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    Tasklet validateStudyIdConsistencyTasklet() {
+        new ValidateStudyIdConsistencyTasklet()
     }
 
     @Bean
