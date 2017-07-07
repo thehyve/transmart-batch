@@ -28,14 +28,12 @@ class ClinicalDataPartialDeletionTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
 
-    static pathToRemove = '\\Private Studies\\GSE8581\\Endpoints\\'
-    static topNode = '\\Private Studies\\GSE8581\\'
-
+    static topNode = '\\Private Studies\\GSE8581\\Endpoints\\'
 
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
             new RunJobRule("${STUDY_ID}", 'backout', ['-d', 'SECURITY_REQUIRED=Y', '-d',
-                    'TOP_NODE=' + pathToRemove, '-d', 'INCLUDED_TYPES=clinical']),
+                                                      'TOP_NODE=' + topNode, '-d', 'INCLUDED_TYPES=clinical']),
             new RunJobRule("${STUDY_ID}", 'clinical', ['-d', 'SECURITY_REQUIRED=Y']),
     ])
 
@@ -55,14 +53,6 @@ class ClinicalDataPartialDeletionTests implements JobRunningTestTrait {
     // test concept counts
 
     @Test
-    void testFolderAndSubfoldersRemoved() {
-        def conceptPaths = getAllStudyConceptPaths(STUDY_ID)
-        assertThat(conceptPaths, allOf(
-                not(empty()),
-                not(hasItem(pathToRemove))))
-    }
-
-    @Test
     void testStudyFolderPersists() {
         def conceptPaths = getAllStudyConceptPaths(STUDY_ID)
         assertThat(conceptPaths, hasItem("\\Private Studies\\GSE8581\\Subjects\\"))
@@ -79,7 +69,7 @@ class ClinicalDataPartialDeletionTests implements JobRunningTestTrait {
     void testObservationsDeleted() {
         def results = getAllObservations(STUDY_ID)
         results.each {
-            assertThat(it["concept_path"], not(containsString(pathToRemove)))
+            assertThat(it["concept_path"], not(containsString(topNode)))
         }
     }
 
@@ -98,7 +88,7 @@ class ClinicalDataPartialDeletionTests implements JobRunningTestTrait {
 //        def results = queryForList(q, [:]).collect {
 //            it.concept_path
 //        }
-        // assertThat(results, everyItem(not(containsString(pathToRemove))))
+        // assertThat(results, everyItem(not(containsString(topNode))))
         assertThat rowCounter.count(Tables.CONCEPT_COUNTS), is(17L)
     }
 

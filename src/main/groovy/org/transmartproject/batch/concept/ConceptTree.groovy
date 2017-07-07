@@ -86,7 +86,7 @@ class ConceptTree {
     ConceptNode findStudyNode(ConceptPath path) {
         ConceptNode studyNode = null
         path.allParents.each {
-            if (nodeMap[it].type == ConceptType.STUDY) {
+            if (nodeMap[it] && nodeMap[it].type == ConceptType.STUDY) {
                 studyNode = nodeMap[it]
             }
         }
