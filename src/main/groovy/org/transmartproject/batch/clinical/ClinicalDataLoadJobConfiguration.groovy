@@ -377,10 +377,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Tasklet deleteConceptCountsTasklet(
             @Value("#{jobParameters['TOP_NODE']}") topNode) {
-        def deletePathList = (topNode as String).split("\\\\")
-        if (deletePathList.size() > 3) {
-            topNode = "\\" + deletePathList[1] + "\\" + deletePathList[2] + "\\"
-        }
         new DeleteConceptCountsTasklet(basePath: new ConceptPath(topNode))
     }
 

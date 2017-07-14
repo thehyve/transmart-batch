@@ -4,6 +4,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.batch.db.GenericTableUpdateTasklet
 import org.transmartproject.batch.support.StringUtils
 
@@ -19,6 +20,9 @@ class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
 
     ConceptPath basePath
 
+    @Autowired
+    ConceptTree conceptTree
+
     final String sql = """
         DELETE
         FROM i2b2demodata.concept_counts
@@ -27,6 +31,9 @@ class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         log.info("About to delete concept counts with base node $basePath")
+        if (conceptTree.findStudyNode(basePath)) {
+            basePath = conceptTree.findStudyNode(basePath).path
+        }
         super.execute(contribution, chunkContext)
     }
 
