@@ -31,9 +31,6 @@ class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         log.info("About to delete concept counts with base node $basePath")
-        if (conceptTree.findStudyNode(basePath)) {
-            basePath = conceptTree.findStudyNode(basePath).path
-        }
         super.execute(contribution, chunkContext)
     }
 
