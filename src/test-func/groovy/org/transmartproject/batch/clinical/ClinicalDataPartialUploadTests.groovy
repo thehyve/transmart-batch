@@ -39,7 +39,8 @@ class ClinicalDataPartialUploadTests implements JobRunningTestTrait {
 
     @ClassRule
     public final static TestRule RUN_JOB_RULE = new RuleChain([
-            new RunJobRule("${STUDY_ID}", 'clinical', ['-d', 'TOP_NODE=' + pathToReupload, '-n']),
+            new RunJobRule("${STUDY_ID}", 'clinical', ['-d', 'TOP_NODE=' + pathToReupload,
+                                                       '-d', 'APPEND_FACTS=Y', '-n']),
             new RunJobRule("${STUDY_ID}", 'clinical', ['-n']),
     ])
 
