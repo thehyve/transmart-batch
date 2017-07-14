@@ -32,13 +32,18 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
 
     static final long NUMBER_OF_PROBES = 8
 
+    static testProteins = [
+            [ id: '0TEST', name: '0TEST' ],
+            [ id: 'E9PC15_TEST', name: 'E9PC15_NAME' ],
+    ]
+
     @ClassRule
     public final static TestRule RUN_JOB_RULES = new RuleChain([
             new RunJobRule(PLATFORM_ID, 'proteomics_annotation'),
-            insertTestProteinsInBioMarkerTable()
+            insertTestProteinsInBioMarkerTable(testProteins)
     ])
 
-    private static ExternalResource insertTestProteinsInBioMarkerTable() {
+    private static ExternalResource insertTestProteinsInBioMarkerTable(List<Map> proteins) {
         new ExternalResource() {
             @Override
             protected void before() throws Throwable {
@@ -47,14 +52,12 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
                 def context = new AnnotationConfigApplicationContext(GenericFunctionalTestConfiguration)
                 try {
                     NamedParameterJdbcTemplate jdbcTempleate = context.getBean(NamedParameterJdbcTemplate)
-                    jdbcTempleate.update("INSERT INTO ${Tables.BIO_MARKER}" +
-                            "(bio_marker_name, primary_external_id, bio_marker_type)" +
-                            " VALUES ('0TEST_NAME', '0TEST', 'PROTEIN')",
-                            [:])
-                    jdbcTempleate.update("INSERT INTO ${Tables.BIO_MARKER}" +
-                            "(bio_marker_name, primary_external_id, bio_marker_type)" +
-                            " VALUES ('E9PC15_NAME', 'E9PC15', 'PROTEIN')",
-                            [:])
+                    proteins.each { protein ->
+                        jdbcTempleate.update("INSERT INTO ${Tables.BIO_MARKER}" +
+                                "(bio_marker_name, primary_external_id, bio_marker_type)" +
+                                " VALUES (:name, :id, 'PROTEIN')",
+                                protein)
+                    }
                 } finally {
                     context.close()
                 }
@@ -63,13 +66,27 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
     }
     public final static TestRule RUN_JOB_RULE = RUN_JOB_RULES.rulesStartingWithInnerMost[0]
 
+    private static removeTestProteinsInBioMarkerTable(List<Map> proteins) {
+        def context = new AnnotationConfigApplicationContext(GenericFunctionalTestConfiguration)
+        try {
+            NamedParameterJdbcTemplate jdbcTempleate = context.getBean(NamedParameterJdbcTemplate)
+            proteins.each { protein ->
+                jdbcTempleate.update("DELETE FROM ${Tables.BIO_MARKER} " +
+                        "WHERE bio_marker_name = :name AND primary_external_id = :id AND bio_marker_type = 'PROTEIN'",
+                        protein)
+            }
+        } finally {
+            context.close()
+        }
+    }
+
     @AfterClass
     static void cleanDatabase() {
         PersistentContext.truncator.
                 truncate([Tables.GPL_INFO,
                           Tables.PROTEOMICS_ANNOTATION,
-                          'ts_batch.batch_job_instance',
-                          Tables.BIO_MARKER])
+                          'ts_batch.batch_job_instance'])
+        removeTestProteinsInBioMarkerTable(testProteins)
     }
 
     @Test
@@ -117,7 +134,7 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
         assertThat r, contains(
                 allOf(
                         hasEntry('gpl_id', 'PROT_ANNOT'),
-                        hasEntry('uniprot_id', 'E9PC15'),
+                        hasEntry('uniprot_id', 'E9PC15_TEST'),
                         hasEntry('uniprot_name', 'E9PC15_NAME'),
                         hasEntry('organism', 'Homo Sapiens'),
                         hasEntry('chromosome', '7'),
@@ -143,8 +160,8 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
 
         assertThat r, contains(
                 allOf(
-                        hasEntry('uniprot_id', 'P34932'),
-                        hasEntry('uniprot_name', 'P34932'),
+                        hasEntry('uniprot_id', 'P34932_TEST'),
+                        hasEntry('uniprot_name', 'P34932_TEST'),
                 )
         )
 
