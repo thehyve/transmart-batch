@@ -97,7 +97,7 @@ class InsertConceptsService {
                     update_date       : now,
                     download_date     : now,
                     import_date       : now,
-                    sourcesystem_cd   : conceptTree.isStudyNode(it) ? studyId : null,
+                    sourcesystem_cd   : conceptTree.doesBelongToStudy(it) ? studyId : null,
             ]
 
             if (it.path.contains(topNode)) {

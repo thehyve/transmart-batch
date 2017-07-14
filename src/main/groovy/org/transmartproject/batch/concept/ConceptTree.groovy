@@ -145,13 +145,13 @@ class ConceptTree {
         savedNodes.addAll(nodes)
     }
 
-    boolean isStudyNode(ConceptNode node) {
+    boolean doesBelongToStudy(ConceptNode node) {
         node.type == ConceptType.STUDY || topNodePath.isPrefixOf(node.path) || findStudyNode(node.path)
     }
 
     Collection<ConceptNode> getAllStudyNodes() {
         Sets.filter(savedNodes, { ConceptNode it ->
-            isStudyNode(it)
+            doesBelongToStudy(it)
         } as Predicate<ConceptNode>)
     }
 }
