@@ -39,7 +39,7 @@ class DeleteObservationFactTasklet extends GenericTableUpdateTasklet {
                 SELECT c_basecode FROM i2b2metadata.i2b2
                 WHERE sourcesystem_cd = ?
                 AND c_visualattributes ${highDim ? '' : 'NOT'} LIKE '__H' ESCAPE '\\'
-                $baseNodePart) or concept_cd='SECURITY')"""
+                $baseNodePart) ${highDim ? "" : "or concept_cd='SECURITY'"})"""
 
         log.debug("Query is $q")
         q
