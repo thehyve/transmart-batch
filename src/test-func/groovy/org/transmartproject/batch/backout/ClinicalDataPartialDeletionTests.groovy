@@ -84,11 +84,6 @@ class ClinicalDataPartialDeletionTests implements JobRunningTestTrait {
 
     @Test
     void testConceptCountsRemain() {
-//        def q = "SELECT * FROM ${Tables.CONCEPT_COUNTS}"
-//        def results = queryForList(q, [:]).collect {
-//            it.concept_path
-//        }
-        // assertThat(results, everyItem(not(containsString(topNode))))
         assertThat rowCounter.count(Tables.CONCEPT_COUNTS), is(17L)
     }
 

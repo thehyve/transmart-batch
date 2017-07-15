@@ -2,7 +2,6 @@ package org.transmartproject.batch.concept
 
 import org.transmartproject.batch.db.GenericTableUpdateTasklet
 
-import javax.annotation.PostConstruct
 import java.sql.PreparedStatement
 import java.sql.SQLException
 
@@ -12,18 +11,9 @@ import java.sql.SQLException
  */
 abstract class InsertConceptCountsTasklet extends GenericTableUpdateTasklet {
 
-    ConceptPath basePath
-
-    @PostConstruct
-    void validateProperties() {
-        assert basePath != null
-    }
-
     @Override
     void setValues(PreparedStatement ps) throws SQLException {
-        ps.setString(1, basePath.toString())
-        ps.setString(2, studyId)
-        ps.setString(3, basePath.parent.toString())
+        ps.setString(1, studyId)
     }
 
     /**

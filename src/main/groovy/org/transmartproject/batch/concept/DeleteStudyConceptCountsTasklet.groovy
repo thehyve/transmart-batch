@@ -4,34 +4,32 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.repeat.RepeatStatus
+import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.GenericTableUpdateTasklet
-import org.transmartproject.batch.support.StringUtils
 
 import java.sql.PreparedStatement
 import java.sql.SQLException
 
 /**
- * Deletes concept counts for concepts under the base path</br>
+ * Deletes concept counts for a study</br>
  * This will delete counts for all kinds of leaf concepts (both lowdim and highdim)
  */
 @Slf4j
-class DeleteConceptCountsTasklet extends GenericTableUpdateTasklet {
-
-    ConceptPath basePath
+class DeleteStudyConceptCountsTasklet extends GenericTableUpdateTasklet {
 
     final String sql = """
         DELETE
-        FROM i2b2demodata.concept_counts
-        WHERE concept_path LIKE ? ESCAPE '\\'"""
+        FROM ${Tables.CONCEPT_COUNTS}
+        WHERE concept_path in (select concept_path from ${Tables.CONCEPT_DIMENSION} where sourcesystem_cd = ?)"""
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        log.info("About to delete concept counts with base node $basePath")
+        log.info("About to delete concept counts for study ${studyId}")
         super.execute(contribution, chunkContext)
     }
 
     @Override
     void setValues(PreparedStatement ps) throws SQLException {
-        ps.setString(1, StringUtils.escapeForLike(basePath.toString(), '\\') + '%')
+        ps.setString(1, studyId)
     }
 }

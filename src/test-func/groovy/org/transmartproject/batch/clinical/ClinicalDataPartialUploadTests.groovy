@@ -187,7 +187,17 @@ class ClinicalDataPartialUploadTests implements JobRunningTestTrait {
         queryForList q, [conceptpath: conceptPath]
     }
 
+    @Test
+    void testSingleConceptCountRecord() {
+        long conceptCountRecords = rowCounter.count(
+                Tables.CONCEPT_COUNTS,
+                'concept_path = :conceptPath',
+                conceptPath: '\\Public Studies\\GSE8581\\Subjects\\Lung Disease\\control\\')
 
+        assertThat conceptCountRecords, equalTo(1L)
+    }
+
+    @SuppressWarnings('UnusedPrivateMethod')
     private getAllStudyConceptPaths(String studyId) {
         def q = "SELECT * FROM i2b2demodata.concept_dimension WHERE concept_path LIKE " +
                 "'\\\\Public Studies\\\\${studyId}\\\\%'"

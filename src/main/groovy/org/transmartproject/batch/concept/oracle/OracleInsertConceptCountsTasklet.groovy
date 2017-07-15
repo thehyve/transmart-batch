@@ -20,9 +20,10 @@ class OracleInsertConceptCountsTasklet extends InsertConceptCountsTasklet {
             concept_path,
             concept_cd
           FROM i2b2demodata.concept_dimension
-          WHERE
-            concept_path LIKE (? || '%')
-            AND sourcesystem_cd = ?
+          WHERE sourcesystem_cd = ?
+        ),
+        min_path(len) AS (
+            SELECT min(length(concept_path)) as len FROM relevant_concepts
         ),
         code_patients(concept_path, parent_concept_path, patient_num) AS (
           SELECT
@@ -39,8 +40,8 @@ class OracleInsertConceptCountsTasklet extends InsertConceptCountsTasklet {
             substr(code_patients.parent_concept_path, 1, length(code_patients.parent_concept_path)
             - instr(reverse(code_patients.parent_concept_path), '\\', 1, 2) + 1) AS parent_concept_path,
             patient_num
-          FROM code_patients
-          WHERE code_patients.parent_concept_path != ?
+          FROM code_patients, min_path
+          WHERE length(code_patients.parent_concept_path) >= min_path.len
         )
         SELECT
             concept_path,

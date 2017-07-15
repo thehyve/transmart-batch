@@ -6,7 +6,6 @@ import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.batch.core.JobExecution
-import org.springframework.batch.core.JobParameter
 import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,7 +15,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.transmartproject.batch.clinical.ClinicalDataLoadJobConfiguration
-import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.concept.postgresql.PostgresInsertConceptCountsTasklet
 
 import javax.sql.DataSource
@@ -58,19 +56,13 @@ class DbBeansSelectionClinicalJobIT {
     @Test
     void testPostgresBeanIsActive() {
         // this is a singleton that proxies the job scoped tasklet
-        def singletonBean = applicationContext.getBean('insertConceptCountsTasklet')
+        def singletonBean = applicationContext.getBean('calclculateAndInsertStudyConceptCountsWithSqlTasklet')
         // and this is the job scoped bean name
         def jobScopedBeanName = singletonBean.targetSource.targetBeanName
-        // so we need to make the scope active
-        def topNode = '\\Public Studies\\foo bar\\'
-        JobParameters parameters = new JobParameters( // required for our bean
-                TOP_NODE: new JobParameter(topNode, false))
-        JobSynchronizationManager.register(new JobExecution(-1, parameters))
+        JobSynchronizationManager.register(new JobExecution(-1, new JobParameters()))
 
         def bean = applicationContext.getBean(jobScopedBeanName)
 
-        assertThat bean, allOf(
-                is(instanceOf(PostgresInsertConceptCountsTasklet)),
-                hasProperty('basePath', equalTo(new ConceptPath(topNode))))
+        assertThat bean, instanceOf(PostgresInsertConceptCountsTasklet)
     }
 }

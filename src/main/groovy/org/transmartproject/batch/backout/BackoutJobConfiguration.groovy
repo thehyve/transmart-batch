@@ -1,7 +1,6 @@
 package org.transmartproject.batch.backout
 
 import groovy.transform.TypeChecked
-import org.codehaus.groovy.runtime.MethodClosure
 import org.springframework.batch.core.ExitStatus
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -12,23 +11,18 @@ import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.support.CompositeItemWriter
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.FilterType
+import org.springframework.context.annotation.Import
 import org.transmartproject.batch.batchartifacts.IterableItemReader
 import org.transmartproject.batch.batchartifacts.LogCountsStepListener
-import org.transmartproject.batch.batchartifacts.StringTemplateBasedDecider
 import org.transmartproject.batch.beans.AbstractJobConfiguration
-import org.transmartproject.batch.beans.StepScopeInterfaced
-import org.transmartproject.batch.concept.ConceptPath
-import org.transmartproject.batch.concept.DeleteConceptCountsTasklet
-import org.transmartproject.batch.concept.InsertConceptCountsTasklet
-import org.transmartproject.batch.concept.oracle.OracleInsertConceptCountsTasklet
-import org.transmartproject.batch.concept.postgresql.PostgresInsertConceptCountsTasklet
-import org.transmartproject.batch.db.DatabaseImplementationClassPicker
+import org.transmartproject.batch.concept.ConceptStepsConfig
 import org.transmartproject.batch.support.ExpressionResolver
+
+import javax.annotation.Resource
 
 import static org.transmartproject.batch.backout.NextBackoutModuleJobExecutionDecider.statusForModule
 
@@ -48,10 +42,17 @@ import static org.transmartproject.batch.backout.NextBackoutModuleJobExecutionDe
         useDefaultFilters = false
 )
 @TypeChecked
+@Import(ConceptStepsConfig)
 class BackoutJobConfiguration extends BackoutJobConfigurationParent {
 
     public static final String JOB_NAME = 'BackoutJob'
     public static final int DELETE_CONCEPTS_AND_FACTS_CHUNK_SIZE = 200
+
+    @Resource
+    Step deleteStudyConceptCountsStep
+
+    @Resource
+    Step calclculateAndInsertStudyConceptCountsStep
 
     @Bean(name = 'BackoutJob')
     @Override
@@ -71,6 +72,7 @@ class BackoutJobConfiguration extends BackoutJobConfigurationParent {
         def flowBuilder = new FlowBuilder<SimpleFlow>('mainFlow')
                 .start(allowStartStepOf('gatherCurrentConcepts', gatherCurrentConceptsTasklet))
                 .next(stepOf('validateTopNode', validateTopNodePreexistenceTasklet))
+                .next(deleteStudyConceptCountsStep)
                 .next(decider)
 
         backoutModules.each { BackoutModule mod ->
@@ -94,42 +96,7 @@ class BackoutJobConfiguration extends BackoutJobConfigurationParent {
                     .to(decider)
         }
 
-        def deciderRecalculateCounts = new StringTemplateBasedDecider(
-                "\${jobCtx['${BackoutContext.KEY_CONCEPT_COUNTS_DIRTY_BASE}'] ? " +
-                        "'CONTINUE' : 'COMPLETED'}")
-
-        flowBuilder.on(ExitStatus.COMPLETED.exitCode)
-
-                .to(deciderRecalculateCounts)
-                .on('CONTINUE')
-                .to(stepOf((MethodClosure) this.&deleteConceptCountsTasklet))
-                .next(stepOf('insertConceptCounts', insertConceptCountsTasklet(null, null)))
-
-                .from(deciderRecalculateCounts)
-                .on(ExitStatus.COMPLETED.exitCode)
-                .end()
-
-                .build()
-    }
-
-    @Bean
-    @StepScopeInterfaced
-    Tasklet deleteConceptCountsTasklet(
-            @Value("#{jobExecutionContext['conceptCountsDirtyBase']}") ConceptPath topNode) {
-        new DeleteConceptCountsTasklet(basePath: topNode)
-    }
-
-    @Bean
-    @StepScopeInterfaced
-    Tasklet insertConceptCountsTasklet(
-            DatabaseImplementationClassPicker picker,
-            @Value("#{jobExecutionContext['conceptCountsDirtyBase']}") ConceptPath topNode) {
-        picker.instantiateCorrectClass(
-                OracleInsertConceptCountsTasklet,
-                PostgresInsertConceptCountsTasklet).with { InsertConceptCountsTasklet t ->
-            basePath = topNode
-            t
-        }
+        flowBuilder.on(ExitStatus.COMPLETED.exitCode).to(calclculateAndInsertStudyConceptCountsStep).build()
     }
 
     @Bean
@@ -137,8 +104,7 @@ class BackoutJobConfiguration extends BackoutJobConfigurationParent {
     Step deleteConceptsAndFactsStep(
             DeleteFactsWriter deleteFactsWriter,
             DeleteConceptWriter deleteConceptWriter,
-            DeleteI2b2TagsWriter deleteI2b2TagsWriter,
-            PromoteConceptCountDirtyBaseStepListener promoteConceptCountDirtyBaseStepListener) {
+            DeleteI2b2TagsWriter deleteI2b2TagsWriter) {
 
         steps.get('deleteConceptsAndFacts')
                 .chunk(DELETE_CONCEPTS_AND_FACTS_CHUNK_SIZE)
@@ -148,7 +114,6 @@ class BackoutJobConfiguration extends BackoutJobConfigurationParent {
                         deleteConceptWriter,
                         deleteI2b2TagsWriter,]))
                 .listener(new LogCountsStepListener())
-                .listener(promoteConceptCountDirtyBaseStepListener)
                 .build()
     }
 
@@ -170,4 +135,4 @@ class BackoutJobConfiguration extends BackoutJobConfigurationParent {
         'org.transmartproject.batch.secureobject',
         'org.transmartproject.batch.biodata',
         'org.transmartproject.batch.concept'])
-abstract class BackoutJobConfigurationParent extends AbstractJobConfiguration { }
+abstract class BackoutJobConfigurationParent extends AbstractJobConfiguration {}

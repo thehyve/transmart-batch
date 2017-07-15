@@ -66,18 +66,18 @@ class ClinicalDataPartialReuploadTests implements JobRunningTestTrait {
 
     @Test
     void testFactValuesForAddedStudyPatient() {
-        def expected_caco2 = [
+        def expectedCaco2 = [
                 "\\Public Studies\\GSE8581\\CLUC\\Characteristics\\Gender\\Male\\": "Male",
                 "\\Public Studies\\GSE8581\\CLUC\\Characteristics\\Age\\"         : 72,
         ]
-        def expected_rko = [
+        def expectedRko = [
                 "\\Public Studies\\GSE8581\\CLUC\\Characteristics\\Age\\"                   : 82,
                 "\\Public Studies\\GSE8581\\CLUC\\Characteristics\\Organism\\Homo sapiens\\": 'Homo sapiens',
         ]
-        def r_caco2 = factsForPatient('GSE8581:CACO2')
+        def rCaco2 = factsForPatient('GSE8581:CACO2')
 
-        assertThat r_caco2, hasItems(
-                expected_caco2.collect { pathEnding, value ->
+        assertThat rCaco2, hasItems(
+                expectedCaco2.collect { pathEnding, value ->
                     allOf(
                             hasEntry(is('concept_path'), endsWith(pathEnding)),
                             value instanceof String ?
@@ -87,10 +87,10 @@ class ClinicalDataPartialReuploadTests implements JobRunningTestTrait {
                 } as Matcher[]
         )
 
-        def r_rko = factsForPatient('GSE8581:RKO')
+        def rRko = factsForPatient('GSE8581:RKO')
 
-        assertThat r_rko, hasItems(
-                expected_rko.collect { pathEnding, value ->
+        assertThat rRko, hasItems(
+                expectedRko.collect { pathEnding, value ->
                     allOf(
                             hasEntry(is('concept_path'), endsWith(pathEnding)),
                             value instanceof String ?
@@ -140,7 +140,8 @@ class ClinicalDataPartialReuploadTests implements JobRunningTestTrait {
                         hasEntry(is('patient_count'), isIntegerNumber(3L))
                 )),
                 hasItem(allOf(
-                        hasEntry(is('concept_path'), endsWith("\\CLUC\\Characteristics\\Cell type\\Epithelial-like cells\\")),
+                        hasEntry(is('concept_path'),
+                                endsWith("\\CLUC\\Characteristics\\Cell type\\Epithelial-like cells\\")),
                         hasEntry(is('patient_count'), isIntegerNumber(4L))
                 )),
                 hasItem(allOf(
@@ -153,7 +154,9 @@ class ClinicalDataPartialReuploadTests implements JobRunningTestTrait {
                 )),
 
                 hasItem(allOf(
-                        hasEntry(is('concept_path'), endsWith("\\CLUC\\Characteristics\\Disease\\Prostatic carcinoma: derived from metastatic site - vertebral metastasis\\")),
+                        hasEntry(is('concept_path'),
+                                endsWith("\\CLUC\\Characteristics\\Disease\\" +
+                                        "Prostatic carcinoma: derived from metastatic site - vertebral metastasis\\")),
                         hasEntry(is('patient_count'), isIntegerNumber(1L))
                 )),
         )
