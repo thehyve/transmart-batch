@@ -14,6 +14,7 @@ import org.transmartproject.batch.clinical.ClinicalDataCleanScenarioTests
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.junit.JobRunningTestTrait
 import org.transmartproject.batch.junit.RunJobRule
+import org.transmartproject.batch.support.StringUtils
 import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -99,9 +100,8 @@ class ClinicalDataPartialDeletionTests implements JobRunningTestTrait {
     }
 
     def getAllStudyConceptPaths(String studyId) {
-        def q = "SELECT concept_path FROM i2b2demodata.concept_dimension WHERE concept_path LIKE " +
-                "'\\\\Private Studies\\\\${studyId}\\\\%'"
-        queryForList(q, [:])*.concept_path
+        def q = "SELECT concept_path FROM i2b2demodata.concept_dimension WHERE concept_path LIKE :path ESCAPE '\\'"
+        queryForList(q, [path: StringUtils.escapeForLike("\\Private Studies\\${studyId}\\") + '%'])*.concept_path
     }
 
     def getAllObservations(String studyId) {
