@@ -138,8 +138,8 @@ class ProteomicsPlatformCleanScenarioTests implements JobRunningTestTrait {
                         hasEntry('uniprot_name', 'E9PC15_NAME'),
                         hasEntry('organism', 'Homo Sapiens'),
                         hasEntry('chromosome', '7'),
-                        hasEntry(is('start_bp'), isIntegerNumber(141251077l)),
-                        hasEntry(is('end_bp'), isIntegerNumber(141354209l)),
+                        hasEntry(is('start_bp'), isIntegerNumber(141251077L)),
+                        hasEntry(is('end_bp'), isIntegerNumber(141354209L)),
                 )
         )
 

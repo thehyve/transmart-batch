@@ -74,7 +74,7 @@ class BackoutClinicalOnlyTests implements JobRunningTestTrait {
                 WHERE concept_path LIKE :path_expr ESCAPE '\\'""",
                 [path_expr: escapeForLike(PUBLIC_STUDIES_PATH) + '%'], Long)
 
-        assertThat res, contains(isIntegerNumber(0l)) //hasSize(0)
+        assertThat res, contains(isIntegerNumber(0L)) //hasSize(0)
     }
 
     @Test
