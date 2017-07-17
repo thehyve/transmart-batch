@@ -26,7 +26,6 @@ import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.PostgresPartitionTasklet
-import org.transmartproject.batch.db.SequenceReserver
 import org.transmartproject.batch.db.oracle.OraclePartitionTasklet
 import org.transmartproject.batch.gwas.analysisdata.AssayAnalysisGwasWriter
 import org.transmartproject.batch.gwas.analysisdata.DeleteCurrentGwasAnalysisDataTasklet
@@ -286,11 +285,5 @@ class GwasJobConfiguration extends AbstractJobConfiguration {
             file = new File(dataLocation, inputFile.toString())
         }
         new PathResource(file.absolutePath)
-    }
-
-
-    @Override
-    protected void configure(SequenceReserver sequenceReserver) {
-        sequenceReserver.configureBlockSize(Sequences.BIO_DATA_ID, chunkSize)
     }
 }

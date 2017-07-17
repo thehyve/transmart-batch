@@ -50,7 +50,7 @@ class DeleteObservationFactTasklet extends GenericTableUpdateTasklet {
         ps.setString(1, studyId)
         ps.setString(2, studyId)
         basePaths.eachWithIndex { ConceptPath basePath, int i ->
-            ps.setString(i + 3, StringUtils.escapeForLike(basePath.toString(), '\\'))
+            ps.setString(i + 3, StringUtils.escapeForLike(basePath.toString(), '\\') + '%')
         }
     }
 }

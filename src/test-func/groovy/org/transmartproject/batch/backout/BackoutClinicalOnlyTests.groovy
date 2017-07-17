@@ -27,7 +27,7 @@ import static org.transmartproject.batch.support.StringUtils.escapeForLike
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
+class BackoutClinicalOnlyTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
 
@@ -56,7 +56,7 @@ class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
     }
 
     @Test
-    void testTwoConceptsRemain() {
+    void testOneConceptsRemain() {
         def res = queryForList("""
                 SELECT c_fullname FROM $Tables.I2B2
                 ORDER BY c_fullname""", [:], String)
@@ -67,14 +67,14 @@ class BackoutClinicalOnlyTests  implements JobRunningTestTrait {
     }
 
     @Test
-    void testConceptCountForTopNodeIsZero() {
+    void testConceptCountForTopNodeIsNotExisting() {
         def res = queryForList("""
                 SELECT patient_count
                 FROM $Tables.CONCEPT_COUNTS
                 WHERE concept_path LIKE :path_expr ESCAPE '\\'""",
                 [path_expr: escapeForLike(PUBLIC_STUDIES_PATH) + '%'], Long)
 
-        assertThat res, contains(isIntegerNumber(0l))
+        assertThat res, contains(isIntegerNumber(0L)) //hasSize(0)
     }
 
     @Test

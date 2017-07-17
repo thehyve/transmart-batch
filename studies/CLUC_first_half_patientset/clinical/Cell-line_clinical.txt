@@ -1,0 +1,9 @@
+Cell line name	Before/After	Organism	Origin tissue	Cell type	Disease	Ethnicity	Age patient at time of tumour (years)	Gender
+CACO2	Cell line name	Homo sapiens	Colon	Epithelial adherent cells	Colorectal adenocarcinoma	Caucasian	72	Male
+CACO2_AURKA	Cell line constructs\Gene silencing	Homo sapiens	Colon	Epithelial adherent cells	Colorectal adenocarcinoma	Caucasian	72	Male
+COLO205	Cell line name	Homo sapiens	Colon	Round & refractile	Colorectal adenocarcinoma	Caucasian	70	Male
+COLO320	Cell line name	Homo sapiens	Colon	Round & refractile	Colorectal adenocarcinoma	Caucasian	55	Female
+HCT15	Cell line name	Homo sapiens	Colon	Epithelial-like cells	Colorectal adenocarcinoma			Male
+HCT116	Cell line name	Homo sapiens	Colon	Epithelial-like cells	Colorectal carcinoma	Caucasian		Male
+HCT116_MLH1	Cell line constructs\Ectopic gene expression	Homo sapiens	Colon	Epithelial-like cells	Colorectal carcinoma	Caucasian		Male
+

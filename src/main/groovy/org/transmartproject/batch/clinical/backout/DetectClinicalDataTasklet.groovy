@@ -68,7 +68,8 @@ class DetectClinicalDataTasklet implements Tasklet {
 
         conceptTree.allConceptNodes.each { ConceptNode node ->
             if (node.type == ConceptType.HIGH_DIMENSIONAL ||
-                    node.path == topNode) {
+                    !node.path.contains(topNode) || node.path == topNode
+            ) {
                 def curNode = node
                 while (curNode != null) {
                     if (curNode in seenConceptNodes) {

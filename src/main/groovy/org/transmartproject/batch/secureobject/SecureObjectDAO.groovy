@@ -48,7 +48,7 @@ class SecureObjectDAO {
         Map secureObjectValues = findOrCreateSecureObject(
                 bioExperimentId, displayName, token)
 
-        insertDummySecurityObservation(token)
+        ensureDummySecurityObservationExists(token)
 
         /* some quick validation */
         if (secureObjectValues['bio_data_id'] != bioExperimentId) {
@@ -188,24 +188,38 @@ class SecureObjectDAO {
      * https://github.com/transmart/transmart-data
      * /blob/cd7f0e337c98a261336cc4ed1db15590beeec316/ddl/postgres/tm_cz/functions/i2b2_load_security_data.sql#L104
      */
-    private int insertDummySecurityObservation(SecureObjectToken token) {
-        def row = [
-                sourcesystem_cd: token.studyId,
-                encounter_num  : -1,
-                patient_num    : -1,
-                concept_cd     : DUMMY_SECURITY_CONCEPT_CD,
-                valtype_cd     : 'T',
-                tval_char      : token.toString(),
-                start_date     : new GregorianCalendar(1970, 0, 1).time,
-                import_date    : new Date(),
-                provider_id    : '@',
-                location_cd    : '@',
-                modifier_cd    : token.studyId,
-                valueflag_cd   : '@',
-                instance_num   : 1,
-        ] as Map<String, Object>
+    private ensureDummySecurityObservationExists(SecureObjectToken token) {
+        def securityFacts = jdbcTemplate.queryForList("""
+            SELECT * 
+            FROM ${Tables.OBSERVATION_FACT}
+            WHERE sourcesystem_cd = :sourcesystem_cd and concept_cd = :concept_cd""",
+            [
+                    sourcesystem_cd: token.studyId,
+                    concept_cd     : DUMMY_SECURITY_CONCEPT_CD,
+            ])
 
-        dummySecurityObservationsInsert.execute(row)
+        if(securityFacts) {
+            log.debug("${DUMMY_SECURITY_CONCEPT_CD} facts exist already.")
+        } else {
+            def row = [
+                    sourcesystem_cd: token.studyId,
+                    encounter_num  : -1,
+                    patient_num    : -1,
+                    concept_cd     : DUMMY_SECURITY_CONCEPT_CD,
+                    valtype_cd     : 'T',
+                    tval_char      : token.toString(),
+                    start_date     : new GregorianCalendar(1970, 0, 1).time,
+                    import_date    : new Date(),
+                    provider_id    : '@',
+                    location_cd    : '@',
+                    modifier_cd    : token.studyId,
+                    valueflag_cd   : '@',
+                    instance_num   : 1,
+            ] as Map<String, Object>
+
+            log.debug("Inserting ${DUMMY_SECURITY_CONCEPT_CD} facts.")
+            dummySecurityObservationsInsert.execute(row)
+        }
     }
 
     private int deleteDummySecurityObservation(SecureObjectToken token) {

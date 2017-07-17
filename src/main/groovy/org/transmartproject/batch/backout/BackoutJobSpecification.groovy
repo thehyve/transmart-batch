@@ -15,11 +15,12 @@ class BackoutJobSpecification
     public final static String INCLUDED_TYPES = 'INCLUDED_TYPES'
     public final static String EXCLUDED_TYPES = 'EXCLUDED_TYPES'
 
+
     public final static String FULL_BACKOUT_TYPE = 'full'
 
     final Set<String> supportedParameters = [
             INCLUDED_TYPES,
-            EXCLUDED_TYPES
+            EXCLUDED_TYPES,
     ]
 
     final List<? extends ExternalJobParametersModule> jobParametersModules = [

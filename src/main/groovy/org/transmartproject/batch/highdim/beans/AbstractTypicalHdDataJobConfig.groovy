@@ -48,11 +48,9 @@ abstract class AbstractTypicalHdDataJobConfig {
     @Resource
     Step validateTopNodePreexistence
     @Resource
-    Step deleteConceptCounts
-    @Resource
     Step insertConcepts
     @Resource
-    Step insertConceptCounts
+    Step refreshConceptCounts
 
     @Resource
     Step validateHighDimensionalConcepts
@@ -99,12 +97,11 @@ abstract class AbstractTypicalHdDataJobConfig {
 
                 .next(deleteHdData)
                 .next(deleteCurrentAssays)
-                .next(deleteConceptCounts)
                 .next(deleteObservationFacts)
 
                 .next(insertConcepts)
                 .next(insertPseudoFacts)
-                .next(insertConceptCounts)
+                .next(refreshConceptCounts)
                 .next(insertAssays)
                 .next(partitionDataTable)
                 .next(secondPass)

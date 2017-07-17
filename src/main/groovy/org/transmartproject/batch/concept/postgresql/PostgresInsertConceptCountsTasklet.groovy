@@ -17,9 +17,10 @@ class PostgresInsertConceptCountsTasklet extends InsertConceptCountsTasklet {
             concept_path,
             concept_cd
           FROM i2b2demodata.concept_dimension
-          WHERE
-            concept_path LIKE (regexp_replace(?, '([\\\\_%])', '\\\\\\1', 'g') || '%') ESCAPE '\\'
-            AND sourcesystem_cd = ?
+          WHERE sourcesystem_cd = ?
+        ),
+        min_path AS (
+            SELECT min(length(concept_path)) as len FROM relevant_concepts
         ),
         code_patients AS (
           SELECT
@@ -34,7 +35,7 @@ class PostgresInsertConceptCountsTasklet extends InsertConceptCountsTasklet {
             code_patients.parent_concept_path as concept_path,
             substring(code_patients.parent_concept_path from '#"%\\#"%\\' for '#') AS parent_concept_path,
             patient_num
-          FROM code_patients WHERE code_patients.parent_concept_path != ?
+          FROM code_patients, min_path WHERE length(code_patients.parent_concept_path) >= min_path.len
         )
         INSERT INTO ${Tables.CONCEPT_COUNTS} (concept_path, parent_concept_path, patient_count)
         SELECT

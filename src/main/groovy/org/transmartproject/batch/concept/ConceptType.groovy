@@ -13,4 +13,5 @@ enum ConceptType {
     CATEGORICAL,
     HIGH_DIMENSIONAL,
     UNKNOWN,
+    STUDY,
 }

@@ -1,13 +1,16 @@
 package org.transmartproject.batch.clinical
 
+import groovy.util.logging.Slf4j
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.job.builder.FlowBuilder
 import org.springframework.batch.core.job.flow.Flow
 import org.springframework.batch.core.job.flow.FlowJob
 import org.springframework.batch.core.job.flow.support.SimpleFlow
+import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
@@ -15,6 +18,7 @@ import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.mapping.FieldSetMapper
 import org.springframework.batch.item.validator.ValidatingItemProcessor
+import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
@@ -24,7 +28,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import org.transmartproject.batch.batchartifacts.DuplicationDetectionProcessor
-import org.transmartproject.batch.batchartifacts.IterableItemReader
 import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 import org.transmartproject.batch.batchartifacts.PutInBeanWriter
 import org.transmartproject.batch.beans.AbstractJobConfiguration
@@ -42,7 +45,6 @@ import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.facts.DeleteObservationFactTasklet
 import org.transmartproject.batch.patient.GatherCurrentPatientsReader
 import org.transmartproject.batch.patient.PatientSet
-import org.transmartproject.batch.support.ExpressionResolver
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.tag.TagsLoadJobConfiguration
 
@@ -54,7 +56,8 @@ import org.transmartproject.batch.tag.TagsLoadJobConfiguration
         'org.transmartproject.batch.concept',
         'org.transmartproject.batch.patient',
         'org.transmartproject.batch.facts'])
-@Import(TagsLoadJobConfiguration)
+@Import([TagsLoadJobConfiguration, ConceptStepsConfig])
+@Slf4j
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     public static final String JOB_NAME = 'ClinicalDataLoadJob'
@@ -80,6 +83,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @javax.annotation.Resource
     ItemWriter<ClinicalFactsRowSet> observationFactTableWriter
+
+    @javax.annotation.Resource
+    Step refreshConceptCounts
 
     @Bean(name = 'ClinicalDataLoadJob')
     @Override
@@ -108,9 +114,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .next(allowStartStepOf(this.&getGatherCurrentConceptsTasklet))
                 .next(allowStartStepOf(this.&gatherXtrialNodesTasklet))
 
+                .next(stepOf('validateStudyIdConsistencyStep', validateStudyIdConsistencyTasklet()))
                 // delete data we'll be replacing
-                .next(stepOf(this.&deleteObservationFactTasklet))
-                .next(stepOf(this.&deleteConceptCountsTasklet))
+                .next(stepOf('deleteObservationFactStep', deleteObservationFactTasklet(null, null)))
 
                 // main data reading and insertion step (in observation_fact)
                 .next(rowProcessingStep())
@@ -119,8 +125,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 // insertion of ancillary data
                 .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object
                 .next(stepOf(this.&getInsertTableAccessTasklet))
-                .next(wrapStepWithName('insertConceptCountsStep',
-                        insertConceptCountsStep(null)))
+                .next(refreshConceptCounts)
                 .build()
     }
 
@@ -254,7 +259,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                     patientDimensionTableWriter,
                     conceptsTablesWriter,
                     observationFactTableWriter,
-                    bitSetConceptCountsWriter(),
                 ))
                 .listener(progressWriteListener())
                 .listener(clinicalJobRowProcessingCompletionPolicy())
@@ -268,14 +272,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    BitSetConceptCountsWriter bitSetConceptCountsWriter() {
-        new BitSetConceptCountsWriter()
-    }
-
-    @Bean
     @JobScope
-    BitSetConceptCounts bitSetConceptCounts() {
-        new BitSetConceptCounts()
+    GatherCurrentPatientConceptPairsReader gatherCurrentPatientConceptPairsReader() {
+        new GatherCurrentPatientConceptPairsReader()
     }
 
     @Bean
@@ -310,34 +309,25 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @JobScopeInterfaced
-    Step insertConceptCountsStep(ExpressionResolver expressionResolver) {
-        steps.get('insertConceptCountsStep')
-                .chunk(CHUNK_SIZE)
-                .reader(new IterableItemReader(
-                        name: 'conceptNodesFromTreeReader',
-                        expression: '@conceptTree.allStudyNodes',
-                        expressionResolver: expressionResolver,)) //read data
-                .writer(insertConceptCountsBitSetWriter())
-                .listener(progressWriteListener())
-                .build()
-    }
-
-    @Bean
-    InsertConceptCountsBitSetWriter insertConceptCountsBitSetWriter() {
-        new InsertConceptCountsBitSetWriter()
+    Tasklet validateStudyIdConsistencyTasklet() {
+        new ValidateStudyIdConsistencyTasklet()
     }
 
     @Bean
     @JobScopeInterfaced
-    Tasklet deleteObservationFactTasklet() {
-        new DeleteObservationFactTasklet()
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    Tasklet deleteConceptCountsTasklet(
-            @Value("#{jobParameters['TOP_NODE']}") topNode) {
-        new DeleteConceptCountsTasklet(basePath: new ConceptPath(topNode))
+    Tasklet deleteObservationFactTasklet(
+            @Value("#{jobParameters['TOP_NODE']}") String topNode,
+            @Value("#{jobParameters['APPEND_FACTS']}") String appendFacts) {
+        if (appendFacts == 'Y') {
+            new Tasklet() {
+                @Override
+                RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+                    log.info('Append mode is on. No observations will be deleted.')
+                }
+            }
+        } else {
+            new DeleteObservationFactTasklet(basePath: new ConceptPath(topNode))
+        }
     }
 
     @Bean

@@ -1,9 +1,11 @@
 package org.transmartproject.batch.concept
 
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.job.builder.FlowBuilder
+import org.springframework.batch.core.job.flow.Flow
+import org.springframework.batch.core.job.flow.support.SimpleFlow
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -43,31 +45,40 @@ class ConceptStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    Step insertConceptCounts(Tasklet insertConceptCountsTasklet) {
-        allowStartStepOf('insertConceptCounts', insertConceptCountsTasklet)
+    Step refreshConceptCounts() {
+        Flow refreshConceptCountsFlow = new FlowBuilder<SimpleFlow>('refreshConceptCountsFlow')
+                .start(deleteStudyConceptCountsStep(null))
+                .next(calclculateAndInsertStudyConceptCountsStep(null))
+                .build()
+
+        steps.get('refreshConceptCounts')
+                .flow(refreshConceptCountsFlow)
+                .build()
     }
 
     @Bean
     @JobScopeInterfaced
-    Tasklet deleteConceptCountsTasklet(
-            @Value("#{jobParameters['TOP_NODE']}") ConceptPath topNode) {
-        new DeleteConceptCountsTasklet(basePath: topNode)
-    }
-
-    @Bean
-    Step deleteConceptCounts(Tasklet deleteConceptCountsTasklet) {
-        allowStartStepOf('deleteConceptCounts', deleteConceptCountsTasklet)
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    Tasklet insertConceptCountsTasklet(
-            @Value("#{jobParameters['TOP_NODE']}") ConceptPath topNode) {
+    Tasklet calclculateAndInsertStudyConceptCountsWithSqlTasklet() {
         picker.instantiateCorrectClass(
                 OracleInsertConceptCountsTasklet,
-                PostgresInsertConceptCountsTasklet).with { InsertConceptCountsTasklet t ->
-            t.basePath = topNode
-            t
-        }
+                PostgresInsertConceptCountsTasklet)
     }
+
+    @Bean
+    Step calclculateAndInsertStudyConceptCountsStep(Tasklet calclculateAndInsertStudyConceptCountsWithSqlTasklet) {
+        allowStartStepOf('calclculateAndInsertStudyConceptCountsStep',
+                calclculateAndInsertStudyConceptCountsWithSqlTasklet)
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    Tasklet deleteStudyConceptCountsTasklet() {
+        new DeleteStudyConceptCountsTasklet()
+    }
+
+    @Bean
+    Step deleteStudyConceptCountsStep(Tasklet deleteStudyConceptCountsTasklet) {
+        allowStartStepOf('deleteStudyConceptCountsStep', deleteStudyConceptCountsTasklet)
+    }
+
 }

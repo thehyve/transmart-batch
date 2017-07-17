@@ -38,7 +38,6 @@ class FindTopNodeTasklet implements Tasklet {
                 [name: topNode.toString()], Integer)
 
         found.times { contribution.incrementReadCount() }
-
         if (found) {
             // prepare for deletion step
             backoutContext.conceptsToDeleteBeforePromotion = [topNode] as Set

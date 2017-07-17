@@ -97,7 +97,7 @@ class InsertConceptsService {
                     update_date       : now,
                     download_date     : now,
                     import_date       : now,
-                    sourcesystem_cd   : conceptTree.isStudyNode(it) ? studyId : null,
+                    sourcesystem_cd   : conceptTree.doesBelongToStudy(it) ? studyId : null,
             ]
 
             if (it.path.contains(topNode)) {
@@ -137,7 +137,7 @@ class InsertConceptsService {
                     update_date    : now,
                     download_date  : now,
                     import_date    : now,
-                    sourcesystem_cd: studyId,
+                    sourcesystem_cd: conceptTree.doesBelongToStudy(it) ? studyId : null,
             ]
         }
 
@@ -163,7 +163,7 @@ class InsertConceptsService {
         def res = conceptTree.childrenFor(concept).isEmpty() ?
                 (concept.type == ConceptType.HIGH_DIMENSIONAL ? 'LAH' : 'LA') :
                 'FA'
-        if (res == 'FA' && concept.path == topNode) {
+        if (res == 'FA' && !conceptTree.findStudyNode(concept.path) && concept.path == topNode) {
             // add the study modifier for the top node
             res = 'FAS'
         }

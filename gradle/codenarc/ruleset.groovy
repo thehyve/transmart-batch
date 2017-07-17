@@ -269,7 +269,7 @@ ruleset {
 	// rulesets/serialization.xml
 	SerialPersistentFields
 	SerialVersionUID
-	SerializableClassMustDefineSerialVersionUID
+//	SerializableClassMustDefineSerialVersionUID
 
 	// rulesets/size.xml
 	AbcComplexity

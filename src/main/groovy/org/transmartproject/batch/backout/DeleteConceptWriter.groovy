@@ -4,7 +4,6 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.item.ItemWriter
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.db.objects.Tables
@@ -23,12 +22,6 @@ class DeleteConceptWriter implements ItemWriter<ConceptPath> {
 
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate
-
-    @Value("#{jobParameters['TOP_NODE']}")
-    ConceptPath topNode
-
-    @Autowired
-    BackoutContext backoutContext
 
     @Override
     void write(List<? extends ConceptPath> items) throws Exception {
@@ -56,11 +49,5 @@ class DeleteConceptWriter implements ItemWriter<ConceptPath> {
                 items.collect { [path: it.toString()] } as Map[]) as List
         DatabaseUtil.checkUpdateCountsPermissive counts,
                 "Delete from $Tables.I2B2_SECURE", items
-
-        items.collect {
-            it == topNode ? it : it.parent
-        }.unique().each {
-            backoutContext.markFactCountDirty(it)
-        }
     }
 }
