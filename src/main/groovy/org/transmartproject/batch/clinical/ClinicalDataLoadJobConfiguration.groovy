@@ -184,13 +184,16 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScope
     DuplicationDetectionProcessor<ClinicalVariable> duplicateClinicalVariableDetector() {
         // equality of ClinicalVariables are based on file and column number
-        new DuplicationDetectionProcessor<ClinicalVariable>(saveState: false)
+        new DuplicationDetectionProcessor<ClinicalVariable>(
+                throwOnRepeated: false,
+                saveState: false)
     }
 
     @Bean
     @JobScope
     DuplicationDetectionProcessor<ClinicalVariable> duplicateDemographicVariablesDetector() {
         new DuplicationDetectionProcessor<ClinicalVariable>(
+                throwOnRepeated: false,
                 saveState: false,
                 calculateKey: { ClinicalVariable it -> it.demographicVariable })
     }
@@ -199,6 +202,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScope
     DuplicationDetectionProcessor<ClinicalVariable> duplicateConceptPathDetector() {
         new DuplicationDetectionProcessor<ClinicalVariable>(
+                throwOnRepeated: false,
                 saveState: false,
                 calculateKey: { ClinicalVariable it -> it.conceptPath })
     }
