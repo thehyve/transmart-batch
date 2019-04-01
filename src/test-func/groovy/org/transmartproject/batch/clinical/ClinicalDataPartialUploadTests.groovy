@@ -187,11 +187,4 @@ class ClinicalDataPartialUploadTests implements JobRunningTestTrait {
         queryForList q, [conceptpath: conceptPath]
     }
 
-
-    private getAllStudyConceptPaths(String studyId) {
-        def q = "SELECT * FROM i2b2demodata.concept_dimension WHERE concept_path LIKE " +
-                "'\\\\Public Studies\\\\${studyId}\\\\%'"
-        queryForList(q, [:])*.concept_path
-    }
-
 }
