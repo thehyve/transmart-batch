@@ -1,0 +1,10 @@
+subj	gender
+04	Male
+05	Male
+06	Female
+07	Female
+08	Male
+09	Female
+10	Female
+11	Male
+12	Female
